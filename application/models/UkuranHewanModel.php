@@ -1,42 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class UkuranHewan extends CI_Model
+date_default_timezone_set("Asia/Jakarta");
+class UkuranHewanModel extends CI_Model
 {
-    private $table = 'user';
+    private $table = 'ukuran_hewan';
     public $id;
     public $nama;
-    public $npm;
-    public $fakultas;
-    public $prodi;
-    public $email;
-    public $telp;
-    public $username;
-    public $password;
-    public $status;
+    public $isDelete;
+    public $updated_by;
+    public $updated_at;
+    public $created_by;
+    public $created_at;
     public $rule = [
         [
             'field' => 'nama',
             'label' => 'nama',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'npm',
-            'label' => 'npm',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'fakultas',
-            'label' => 'fakultas',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'prodi',
-            'label' => 'prodi',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'telp',
-            'label' => 'telp',
             'rules' => 'required'
         ]
     ];
@@ -44,32 +22,18 @@ class UkuranHewan extends CI_Model
         return $this->rule; 
     }
 
-    public function getAll() { 
-        return $this->db->get('user')->result();
+    public function get() { 
+        return $this->db->select('id,nama')->from($this->table)->get()->result();
     }
-    public function getOne($id){
-        $result = $this->db->where('id',$id)->get('user')->row_array();
-        if($result!=null)
-            return [
-                'msg'=>$result,
-                'error'=>false
-            ];
-        else
-            return [
-                'msg'=>'User tidak ditemukan',
-                'error'=>true
-            ];
+
+    public function search($request){
+        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request))->get()->result();
     }
     public function store($request) {
         $this->nama = $request->nama;
-        $this->email = $request->email;
-        $this->npm = $request->npm;
-        $this->fakultas = $request->fakultas;
-        $this->prodi = $request->prodi;
-        $this->telp = $request->telp;
-        $this->username = $request->username;
-        $this->status = 'Waiting Confirm';
-        $this->password = password_hash($request->password, PASSWORD_BCRYPT);
+        $this->created_by = $this->getIdPegawai($request->created_by);
+        $this->isDelete = 0;
+        $this->created_at = date('Y-m-d H:i:s');
         if($this->db->insert($this->table, $this)){
             return [
                 'msg'=>'Berhasil',
@@ -81,15 +45,18 @@ class UkuranHewan extends CI_Model
             'error'=>true
         ];
     }
-    public function update($request,$id) {
-        $updateData = [ 
-            'nama' =>$request->nama,
-            'npm' =>$request->npm,
-            'fakultas' => $request->fakultas,
-            'prodi' => $request->prodi,
-            'telp' => $request->telp
-        ];
-        if($this->db->where('id',$id)->update($this->table, $updateData)){
+    
+    public function update($request) {
+        $this->id = $request->id;
+        $this->nama = $request->nama;
+        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'nama'      => $this->nama, 
+            'updated_by' => $this->updated_by, 
+            'updated_at'       => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -100,14 +67,17 @@ class UkuranHewan extends CI_Model
             'error'=>true
         ];
     }
-    public function destroy($id){
-        if (empty($this->db->select('*')->where(array('id' => $id))->get($this->table)->row())) 
-            return [
-                'msg'=>'Id tidak ditemukan',
-                'error'=>true
-            ];
 
-        if($this->db->delete($this->table, array('id' => $id))){
+    public function delete($request){
+        $this->id = $request->id;
+        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'isDelete'      => 1, 
+            'updated_by' => $this->updated_by, 
+            'updated_at'       => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -118,49 +88,12 @@ class UkuranHewan extends CI_Model
             'error'=>true
         ];
     }
-    public function confirm($username){
-        if (empty($this->db->select('*')->where(array('username' => $username))->get($this->table)->row())) 
-            return [
-                'msg'=>'Id tidak ditemukan',
-                'error'=>true
-            ];
-        $updateData = [ 
-            'status' =>'Confirm'
-        ];
-        if($this->db->where('username',$username)->update($this->table, $updateData)){
-            return [
-                'msg'=>'Berhasil',
-                'error'=>false
-            ];
+
+    private function getIdPegawai($username){
+        $request = $this->db->select('id')->from('pegawai')->where(array('username' => $username))->get()->row();
+        if($request != null){
+            return $request->id;
         }
-        return [
-            'msg'=>'Gagal',
-            'error'=>true
-        ];
-    }
-    public function login($request){
-        $get=$this->db->where('username',$request->username)->get($this->table)->row_array();
-        if($get!=null){
-            if(password_verify($request->password,$get['password'])){
-                $result=[
-                    'id'=>$get['id'],
-                    'status'=>$get['status']
-                ];
-                return [
-                    'msg'=>$result,
-                    'error'=>false
-                ];
-            }
-            return[
-                'msg'=>'wrong password',
-                'error'=>true
-            ];
-        }else{
-            return[
-                'msg'=>'data tidak ditemukan',
-                'error'=>true
-            ]; 
-        }
-        
+        return null;
     }
 }
