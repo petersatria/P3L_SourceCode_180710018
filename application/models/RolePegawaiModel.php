@@ -27,7 +27,7 @@ class RolePegawaiModel extends CI_Model
     }
 
     public function search($request){
-        return $this->db->select('id,keterangan')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
+        return $this->db->select('id,keterangan')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
     public function store($request) {
         $this->keterangan = $request->keterangan;

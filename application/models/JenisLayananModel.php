@@ -27,7 +27,7 @@ class JenisLayananModel extends CI_Model
     }
 
     public function search($request){
-        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
+        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
     public function store($request) {
         $this->nama = $request->nama;
