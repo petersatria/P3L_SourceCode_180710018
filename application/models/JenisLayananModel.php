@@ -22,12 +22,12 @@ class JenisLayananModel extends CI_Model
         return $this->rule; 
     }
 
-    public function get() { 
-        return $this->db->select('id,nama')->from($this->table)->get()->result();
+    public function get() {
+        return $this->db->select('id,nama')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request))->get()->result();
+        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
     }
     public function store($request) {
         $this->nama = $request->nama;
