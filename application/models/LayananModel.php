@@ -8,6 +8,7 @@ class LayananModel extends CI_Model
     public $harga;
     public $id_ukuran_hewan;
     public $id_layanan;
+    public $url_gambar;
     public $isDelete;
     public $updated_by;
     public $updated_at;
@@ -35,21 +36,22 @@ class LayananModel extends CI_Model
     }
 
     public function get() { 
-        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan')->from($this->table)->where(array('isDelete'=>0))->get()->result();
+        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan,url_gambar')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
+        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan,url_gambar')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
     }
 
     public function searchForeign($request){
-        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan')->from($this->table)->where(array('id'=>$request))->get()->result();
+        return $this->db->select('id,harga,id_ukuran_hewan,id_layanan,url_gambar')->from($this->table)->where(array('id'=>$request))->get()->result();
     }
     
     public function store($request) {
         $this->harga = $request->harga;
         $this->id_ukuran_hewan = $request->id_ukuran_hewan;
         $this->id_layanan = $request->id_layanan;
+        $this->url_gambar = $request->url_gambar;
         $this->created_by = $request->created_by;
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
@@ -71,13 +73,15 @@ class LayananModel extends CI_Model
         $this->id_ukuran_hewan = $request->id_ukuran_hewan;
         $this->id_layanan = $request->id_layanan;
         $this->updated_by = $request->updated_by;
+        $this->url_gambar = $request->url_gambar;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'harga'      => $this->harga, 
             'id_ukuran_hewan'      => $this->id_ukuran_hewan, 
             'id_layanan'      => $this->id_layanan,
             'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'updated_at'       => $this->updated_at, 
+            'url_gambar'       => $this->url_gambar
         );
         if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
             return [
