@@ -1,14 +1,17 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 date_default_timezone_set("Asia/Jakarta");
-class SupplierModel extends CI_Model
+class PegawaiModel extends CI_Model
 {
-    private $table = 'supplier';
+    private $table = 'produk';
     public $id;
+    public $id_role_pegawai;
     public $nama;
-    public $no_telp;
+    public $tangal_lahir;
     public $alamat;
-    public $kota;
+    public $no_telp;
+    public $username;
+    public $password;
     public $isDelete;
     public $updated_by;
     public $updated_at;
@@ -21,8 +24,13 @@ class SupplierModel extends CI_Model
             'rules' => 'required'
         ],
         [
-            'field' => 'no_telp',
-            'label' => 'no_telp',
+            'field' => 'id_role_pegawai',
+            'label' => 'id_role_pegawai',
+            'rules' => 'required'
+        ],
+        [
+            'field' => 'tangal_lahir',
+            'label' => 'tangal_lahir',
             'rules' => 'required'
         ],
         [
@@ -31,8 +39,18 @@ class SupplierModel extends CI_Model
             'rules' => 'required'
         ],
         [
-            'field' => 'kota',
-            'label' => 'kota',
+            'field' => 'no_telp',
+            'label' => 'no_telp',
+            'rules' => 'required'
+        ],
+        [
+            'field' => 'username',
+            'label' => 'username',
+            'rules' => 'required'
+        ],
+        [
+            'field' => 'password',
+            'label' => 'password',
             'rules' => 'required'
         ]
     ];
@@ -41,18 +59,21 @@ class SupplierModel extends CI_Model
     }
 
     public function get() { 
-        return $this->db->select('id,nama,no_telp,alamat,kota')->from($this->table)->where(array('isDelete'=>0))->get()->result();
+        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,nama,no_telp,alamat,kota')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
+        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp,password')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
     }
     public function store($request) {
         $this->nama = $request->nama;
-        $this->no_telp = $request->no_telp;
+        $this->id_kategori_produk = $request->id_kategori_produk;
+        $this->tanggal_lahir = $request->tanggal_lahir;
         $this->alamat = $request->alamat;
-        $this->kota = $request->kota;
-        $this->created_by = $request->created_by;
+        $this->username = $request->username;
+        $this->password = $request->password;
+        $this->no_telp = $request->no_telp;
+        $this->created_by = $this->getIdPegawai($request->created_by);
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
@@ -70,16 +91,22 @@ class SupplierModel extends CI_Model
     public function update($request) {
         $this->id = $request->id;
         $this->nama = $request->nama;
-        $this->no_telp = $request->no_telp;
+        $this->id_kategori_produk = $request->id_kategori_produk;
+        $this->tanggal_lahir = $request->tanggal_lahir;
         $this->alamat = $request->alamat;
-        $this->kota = $request->kota;
-        $this->updated_by = $request->updated_by;
+        $this->username = $request->username;
+        $this->password = $request->password;
+        $this->no_telp = $request->no_telp;
+        $this->updated_by = $this->getIdPegawai($request->updated_by);
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'nama'      => $this->nama, 
-            'no_telp'      => $this->no_telp, 
+            'id_kategori_produk'      => $this->id_kategori_produk, 
+            'tanggal_lahir'      => $this->tanggal_lahir, 
             'alamat'      => $this->alamat, 
-            'kota'      => $this->kota, 
+            'username'      => $this->username,
+            'password'      => $this->password, 
+            'no_telp'      => $this->no_telp, 
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );
@@ -97,7 +124,7 @@ class SupplierModel extends CI_Model
 
     public function delete($request){
         $this->id = $request->id;
-        $this->updated_by = $request->updated_by;
+        $this->updated_by = $this->getIdPegawai($request->updated_by);
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'isDelete'      => 1, 
@@ -116,8 +143,24 @@ class SupplierModel extends CI_Model
         ];
     }
 
-    private function getIdPegawai($username){
+    public function getIdPegawai($username){
         $request = $this->db->select('id')->from('pegawai')->where(array('username' => $username))->get()->row();
+        if($request != null){
+            return $request->id;
+        }
+        return null;
+    }
+
+    public function login($request){
+        $request = $this->db->select('username,password')->from('pegawai')->where(array('username' => $username))->get()->row();
+        if($request != null){
+            return $request->id;
+        }
+        return null;
+    }
+
+    public function getByUsername($request){
+        $request = $this->db->select('id,username')->from('pegawai')->where(array('username' => $username))->limit(1)->get()->row();
         if($request != null){
             return $request->id;
         }

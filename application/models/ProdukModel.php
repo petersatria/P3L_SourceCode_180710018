@@ -66,7 +66,7 @@ class ProdukModel extends CI_Model
         $this->satuan = $request->satuan;
         $this->jmlh_min = $request->jmlh_min;
         $this->jmlh = $request->jmlh;
-        $this->created_by = $this->getIdPegawai($request->created_by);
+        $this->created_by = $request->created_by;
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
@@ -89,7 +89,7 @@ class ProdukModel extends CI_Model
         $this->satuan = $request->satuan;
         $this->jmlh_min = $request->jmlh_min;
         $this->jmlh = $request->jmlh;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'nama'      => $this->nama, 
@@ -115,7 +115,7 @@ class ProdukModel extends CI_Model
 
     public function delete($request){
         $this->id = $request->id;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'isDelete'      => 1, 
@@ -132,13 +132,5 @@ class ProdukModel extends CI_Model
             'msg'=>'Gagal',
             'error'=>true
         ];
-    }
-
-    private function getIdPegawai($username){
-        $request = $this->db->select('id')->from('pegawai')->where(array('username' => $username))->get()->row();
-        if($request != null){
-            return $request->id;
-        }
-        return null;
     }
 }

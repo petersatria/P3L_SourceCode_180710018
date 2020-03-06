@@ -31,7 +31,7 @@ class KategoriProdukModel extends CI_Model
     }
     public function store($request) {
         $this->keterangan = $request->keterangan;
-        $this->created_by = $this->getIdPegawai($request->created_by);
+        $this->created_by = $request->created_by;
         $this->isDelete = 0;
         $this->created_at = date('Y-m-d H:i:s');
         if($this->db->insert($this->table, $this)){
@@ -49,7 +49,7 @@ class KategoriProdukModel extends CI_Model
     public function update($request) {
         $this->id = $request->id;
         $this->keterangan = $request->keterangan;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'keterangan'      => $this->keterangan, 
@@ -70,7 +70,7 @@ class KategoriProdukModel extends CI_Model
 
     public function delete($request){
         $this->id = $request->id;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'isDelete'      => 1, 
