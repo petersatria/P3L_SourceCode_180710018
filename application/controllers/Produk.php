@@ -11,7 +11,8 @@ class Produk extends REST_Controller
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
         $this->load->model('ProdukModel');
-        $this->load->model('KategoriProdukModel');
+		$this->load->model('KategoriProdukModel');
+		$this->load->model('PegawaiModel');
 		$this->load->library('form_validation');
 	}
 
@@ -68,10 +69,10 @@ class Produk extends REST_Controller
 		$data->jmlh_min = $this->post('jmlh_min');
         $data->jmlh = $this->post('jmlh');
 		if($id != null){
-            $data->updated_by = $this->post('updated_by');
+            $data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			$response = $this->ProdukModel->update($data);
 		}else{
-			$data->created_by = $this->post('created_by');
+			$data->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
 			$response = $this->ProdukModel->store($data);
 		}
 		return $this->returnData($response['msg'], $response['error']);
@@ -94,7 +95,7 @@ class Produk extends REST_Controller
 			return $this->returnData($this->form_validation->error_array(), true);
 		}
 		$ukuran = new data();
-		$ukuran->updated_by = $this->post('updated_by');
+		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
 		$response = $this->ProdukModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);

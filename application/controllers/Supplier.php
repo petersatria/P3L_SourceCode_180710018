@@ -11,6 +11,7 @@ class Supplier extends REST_Controller
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
 		$this->load->model('SupplierModel');
+		$this->load->model('PegawaiModel');
 		$this->load->library('form_validation');
 	}
 
@@ -59,10 +60,10 @@ class Supplier extends REST_Controller
         $ukuran->alamat = $this->post('alamat');
         $ukuran->kota = $this->post('kota');
 		if($id != null){
-            $ukuran->updated_by = $this->post('updated_by');
+            $ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			$response = $this->SupplierModel->update($ukuran);
 		}else{
-			$ukuran->created_by = $this->post('created_by');
+			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
 			$response = $this->SupplierModel->store($ukuran);
 		}
 		return $this->returnData($response['msg'], $response['error']);
@@ -85,7 +86,7 @@ class Supplier extends REST_Controller
 			return $this->returnData($this->form_validation->error_array(), true);
 		}
 		$ukuran = new data();
-		$ukuran->updated_by = $this->post('updated_by');
+		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
 		$response = $this->SupplierModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);

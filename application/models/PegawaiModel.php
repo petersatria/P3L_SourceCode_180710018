@@ -3,11 +3,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 date_default_timezone_set("Asia/Jakarta");
 class PegawaiModel extends CI_Model
 {
-    private $table = 'produk';
+    private $table = 'pegawai';
     public $id;
     public $id_role_pegawai;
     public $nama;
-    public $tangal_lahir;
+    public $tanggal_lahir;
     public $alamat;
     public $no_telp;
     public $username;
@@ -29,8 +29,8 @@ class PegawaiModel extends CI_Model
             'rules' => 'required'
         ],
         [
-            'field' => 'tangal_lahir',
-            'label' => 'tangal_lahir',
+            'field' => 'tanggal_lahir',
+            'label' => 'tanggal_lahir',
             'rules' => 'required'
         ],
         [
@@ -67,13 +67,13 @@ class PegawaiModel extends CI_Model
     }
     public function store($request) {
         $this->nama = $request->nama;
-        $this->id_kategori_produk = $request->id_kategori_produk;
+        $this->id_role_pegawai = $request->id_role_pegawai;
         $this->tanggal_lahir = $request->tanggal_lahir;
         $this->alamat = $request->alamat;
         $this->username = $request->username;
         $this->password = $request->password;
         $this->no_telp = $request->no_telp;
-        $this->created_by = $this->getIdPegawai($request->created_by);
+        $this->created_by = $request->created_by;
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
@@ -91,17 +91,17 @@ class PegawaiModel extends CI_Model
     public function update($request) {
         $this->id = $request->id;
         $this->nama = $request->nama;
-        $this->id_kategori_produk = $request->id_kategori_produk;
+        $this->id_role_pegawai = $request->id_role_pegawai;
         $this->tanggal_lahir = $request->tanggal_lahir;
         $this->alamat = $request->alamat;
         $this->username = $request->username;
         $this->password = $request->password;
         $this->no_telp = $request->no_telp;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'nama'      => $this->nama, 
-            'id_kategori_produk'      => $this->id_kategori_produk, 
+            'id_role_pegawai'      => $this->id_role_pegawai, 
             'tanggal_lahir'      => $this->tanggal_lahir, 
             'alamat'      => $this->alamat, 
             'username'      => $this->username,
@@ -160,7 +160,7 @@ class PegawaiModel extends CI_Model
     }
 
     public function getByUsername($request){
-        $request = $this->db->select('id,username')->from('pegawai')->where(array('username' => $username))->limit(1)->get()->row();
+        $request = $this->db->select('id,username')->from('pegawai')->where(array('username' => $request))->limit(1)->get()->row();
         if($request != null){
             return $request->id;
         }

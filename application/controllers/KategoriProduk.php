@@ -11,6 +11,7 @@ class KategoriProduk extends REST_Controller
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
 		$this->load->model('KategoriProdukModel');
+		$this->load->model('PegawaiModel');
 		$this->load->library('form_validation');
 	}
 
@@ -56,12 +57,12 @@ class KategoriProduk extends REST_Controller
 			$ukuran = new data();
 			$ukuran->id = $id;
 			$ukuran->keterangan = $this->post('keterangan');
-			$ukuran->updated_by = $this->post('updated_by');
+			$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			$response = $this->KategoriProdukModel->update($ukuran);
 		}else{
 			$ukuran = new data();
 			$ukuran->keterangan = $this->post('keterangan');
-			$ukuran->created_by = $this->post('created_by');
+			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
 			$response = $this->KategoriProdukModel->store($ukuran);
 		}
 		return $this->returnData($response['msg'], $response['error']);
@@ -84,7 +85,7 @@ class KategoriProduk extends REST_Controller
 			return $this->returnData($this->form_validation->error_array(), true);
 		}
 		$ukuran = new data();
-		$ukuran->updated_by = $this->post('updated_by');
+		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
 		$response = $this->KategoriProdukModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
