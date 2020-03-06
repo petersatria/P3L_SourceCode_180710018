@@ -20,13 +20,13 @@ class Pegawai extends REST_Controller
         if($id==null){
             $response = $this->PegawaiModel->get();
             foreach($response as $r){
-                $r->id_role_pegawai = $this->RolePegawaiModel->search($r->id_role_pegawai)->keterangan;
+                $r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
             }
 			return $this->returnData($response, false);
         }else{
             $response = $this->PegawaiModel->search($id);
             foreach($response as $r){
-                $r->id_role_pegawai = $this->RolePegawaiModel->search($r->id_role_pegawai)->keterangan;
+                $r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
             }
 			return $this->returnData($response,false);
 		}

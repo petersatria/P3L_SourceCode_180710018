@@ -29,6 +29,11 @@ class UkuranHewanModel extends CI_Model
     public function search($request){
         return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
+
+    public function searchForeign($request){
+        return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request,))->get()->row();
+    }
+    
     public function store($request) {
         $this->nama = $request->nama;
         $this->created_by = $request->created_by;

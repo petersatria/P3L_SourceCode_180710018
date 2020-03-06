@@ -21,13 +21,13 @@ class Produk extends REST_Controller
         if($id==null){
             $response = $this->ProdukModel->get();
             foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->search($r->id_kategori_produk)->keterangan;
+                $r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
             }
 			return $this->returnData($response, false);
         }else{
             $response = $this->ProdukModel->search($id);
             foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->search($r->id_kategori_produk)->keterangan;
+                $r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
             }
 			return $this->returnData($response,false);
 		}

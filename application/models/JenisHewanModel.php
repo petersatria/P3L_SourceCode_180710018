@@ -29,6 +29,11 @@ class JenisHewanModel extends CI_Model
     public function search($request){
         return $this->db->select('id,keterangan')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
+
+    public function searchForeign($request){
+        return $this->db->select('id,keterangan')->from($this->table)->where(array('id'=>$request))->get()->row();
+    }
+
     public function store($request) {
         $this->keterangan = $request->keterangan;
         $this->created_by = $request->created_by;

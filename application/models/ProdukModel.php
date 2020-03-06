@@ -57,8 +57,13 @@ class ProdukModel extends CI_Model
     }
 
     public function search($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->result();
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
+
+    public function searchForeign($request){
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,))->get()->row();
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_kategori_produk = $request->id_kategori_produk;

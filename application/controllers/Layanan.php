@@ -2,7 +2,7 @@
 
 use Restserver\Libraries\REST_Controller;
 
-class Produk extends REST_Controller
+class Layanan extends REST_Controller
 {
 	public function __construct()
 	{
@@ -20,15 +20,17 @@ class Produk extends REST_Controller
 	public function index_get($id = null)
 	{
         if($id==null){
-            $response = $this->ProdukModel->get();
+            $response = $this->LayananModel->get();
             foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->search($r->id_kategori_produk)->keterangan;
+				$r->id_ukuran_hewan = $this->UkuranHewanModel->searchForeign($r->id_ukuran_hewan)->nama;
+				$r->id_layanan = $this->JenisLayananModel->searchForeign($r->id_layanan)->nama;
             }
 			return $this->returnData($response, false);
         }else{
-            $response = $this->ProdukModel->search($id);
+            $response = $this->LayananModel->search($id);
             foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->search($r->id_kategori_produk)->keterangan;
+				$r->id_ukuran_hewan = $this->UkuranHewanModel->searchForeign($r->id_ukuran_hewan)->nama;
+				$r->id_layanan = $this->JenisLayananModel->searchForeign($r->id_layanan)->nama;
             }
 			return $this->returnData($response,false);
 		}
@@ -37,7 +39,7 @@ class Produk extends REST_Controller
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
-		$rule = $this->ProdukModel->rules();
+		$rule = $this->LayananModel->rules();
 		if($id != null){
 			array_push(
 				$rule,
@@ -63,18 +65,15 @@ class Produk extends REST_Controller
         }
         $data = new data();
         $data->id = $id;
-        $data->nama = $this->post('nama');
-        $data->id_kategori_produk = $this->post('id_kategori_produk');
+        $data->id_ukuran_hewan = $this->post('id_ukuran_hewan');
         $data->harga = $this->post('harga');
-		$data->satuan = $this->post('satuan');
-		$data->jmlh_min = $this->post('jmlh_min');
-        $data->jmlh = $this->post('jmlh');
+		$data->id_layanan = $this->post('id_layanan');
 		if($id != null){
             $data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-			$response = $this->ProdukModel->update($data);
+			$response = $this->LayananModel->update($data);
 		}else{
 			$data->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
-			$response = $this->ProdukModel->store($data);
+			$response = $this->LayananModel->store($data);
 		}
 		return $this->returnData($response['msg'], $response['error']);
 	}
@@ -98,7 +97,7 @@ class Produk extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
-		$response = $this->ProdukModel->delete($ukuran);
+		$response = $this->LayananModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
@@ -113,12 +112,9 @@ class Produk extends REST_Controller
 class data
 {
 	public $id;
-    public $nama;
-    public $id_kateogri_produk;
     public $harga;
-    public $satuan;
-    public $jmlh_min;
-    public $jmlh;
+    public $id_ukuran_hewan;
+    public $id_layanan;
 	public $created_by;
 	public $updaetd_by;
 }
