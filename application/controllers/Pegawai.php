@@ -26,11 +26,17 @@ class Pegawai extends REST_Controller
 			return $this->returnData($response, false);
         }else{
             $response = $this->PegawaiModel->search($id);
-            foreach($response as $r){
-                $r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
-            }
+			$response->id_role_pegawai = $this->RolePegawaiModel->searchForeign($response->id_role_pegawai)->keterangan;
 			return $this->returnData($response,false);
 		}
+	}
+
+	public function byString_get($nama = null){
+		$response = $this->PegawaiModel->searchByString($nama);
+		foreach($response as $r){
+			$r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
+		}
+		return $this->returnData($response, false);
 	}
 
 	public function index_post($id = null)
@@ -114,9 +120,8 @@ class Pegawai extends REST_Controller
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
-	public function login_get(){
+	public function login_post(){
 		$data = new data();
-        $data->id = $id;
 		$data->username = $this->post('username');
 		$data->password = $this->post('password');
 		$response = $this->PegawaiModel->login($data->username);
@@ -127,20 +132,20 @@ class Pegawai extends REST_Controller
 					'error'=>true
 				];
 			}else{
+				$response->id_role_pegawai = $this->RolePegawaiModel->searchForeign($response->id_role_pegawai)->keterangan;
 				$data = array('username'=>$response->username,'id_role_pegawai'=>$response->id_role_pegawai);
 				$response = [
 					'msg'=> $data,
 					'error'=>false
 				];
 			}
-			return $this->returnData($response['msg'], $response['error']);
 		}else{
 			$response = [
 				'msg'=>'Username tidak ditemukan',
 				'error'=>true
 			];
 		}
-		
+		return $this->returnData($response['msg'], $response['error']);
 	}
 
 	public function returnData($msg, $error)

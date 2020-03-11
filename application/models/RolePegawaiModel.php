@@ -33,6 +33,11 @@ class RolePegawaiModel extends CI_Model
     public function searchForeign($request){
         return $this->db->select('id,keterangan')->from($this->table)->where(array('id'=>$request,))->get()->row();
     }
+
+    public function searchByString($request){
+        return $this->db->select('id,keterangan')->from($this->table)->where(array('isDelete'=>0))->like('keterangan',$request)->or_like('keterangan',$request,'before')->or_like('keterangan',$request,'after')->get()->result();
+    }
+
     public function store($request) {
         $this->keterangan = $request->keterangan;
         $this->created_by = $request->created_by;

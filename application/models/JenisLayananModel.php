@@ -33,6 +33,10 @@ class JenisLayananModel extends CI_Model
     public function searchForeign($request){
         return $this->db->select('id,nama')->from($this->table)->where(array('id'=>$request))->get()->row();
     }
+    
+    public function searchByString($request){
+        return $this->db->select('id,nama')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+    }
 
     public function store($request) {
         $this->nama = $request->nama;

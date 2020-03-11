@@ -70,6 +70,10 @@ class PegawaiModel extends CI_Model
         return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp,password')->from($this->table)->where(array('id'=>$request))->get()->row();
     }
     
+    public function searchByString($request){
+        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_role_pegawai = $request->id_role_pegawai;
@@ -159,7 +163,7 @@ class PegawaiModel extends CI_Model
     public function login($username){
         $request = $this->db->select('username,password,id_role_pegawai')->from('pegawai')->where(array('username' => $username))->get()->row();
         if($request != null){
-            return $request->id;
+            return $request;
         }
         return null;
     }

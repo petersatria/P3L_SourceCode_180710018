@@ -47,6 +47,10 @@ class LayananModel extends CI_Model
         return $this->db->select('id,harga,id_ukuran_hewan,id_layanan,url_gambar')->from($this->table)->where(array('id'=>$request))->get()->result();
     }
     
+    public function searchByString($request){
+        return $this->db->select('id,nama as `id_layanan`,harga,id_ukuran_hewan,url_gambar')->from($this->table)->join('jenis_layanan','jenis_layanan.id = layanan.id_layanan')->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+    }
+
     public function store($request) {
         $this->harga = $request->harga;
         $this->id_ukuran_hewan = $request->id_ukuran_hewan;

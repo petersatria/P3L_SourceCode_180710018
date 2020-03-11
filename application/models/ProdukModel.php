@@ -64,6 +64,10 @@ class ProdukModel extends CI_Model
         return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,))->get()->row();
     }
 
+    public function searchByString($request){
+        return $this->db->select('id,nama')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+    }
+    
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_kategori_produk = $request->id_kategori_produk;
