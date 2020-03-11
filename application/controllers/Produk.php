@@ -27,9 +27,7 @@ class Produk extends REST_Controller
 			return $this->returnData($response, false);
         }else{
             $response = $this->ProdukModel->search($id);
-            foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
-            }
+			$response->id_kategori_produk = $this->KategoriProdukModel->searchForeign($response->id_kategori_produk)->keterangan;
 			return $this->returnData($response,false);
 		}
 	}
