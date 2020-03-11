@@ -38,6 +38,14 @@ class Layanan extends REST_Controller
 		}
 	}
 
+	public function byString_get($nama = null){
+		$response = $this->LayananModel->searchByString($nama);
+		foreach($response as $r){
+			$r->id_ukuran_hewan = $this->UkuranHewanModel->searchForeign($r->id_ukuran_hewan)->nama;
+		}
+		return $this->returnData($response, false);
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;

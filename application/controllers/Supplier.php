@@ -28,6 +28,11 @@ class Supplier extends REST_Controller
 		}
 	}
 
+	public function byString_get($nama = null){
+		$response = $this->SupplierModel->searchByString($nama);
+		return $this->returnData($response, false);
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;

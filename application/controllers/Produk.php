@@ -32,6 +32,14 @@ class Produk extends REST_Controller
 		}
 	}
 
+	public function byString_get($nama = null){
+		$response = $this->ProdukModel->searchByString($nama);
+		foreach($response as $r){
+			$r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
+		}
+		return $this->returnData($response, false);
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
