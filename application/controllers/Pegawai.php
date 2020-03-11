@@ -113,6 +113,35 @@ class Pegawai extends REST_Controller
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
+	public function login_get(){
+		$data = new data();
+        $data->id = $id;
+		$data->username = $this->post('username');
+		$data->password = $this->post('password');
+		$response = $this->PegawaiModel->login($data->username);
+		if($response != null){
+			if(!password_verify($data->password,$response->password)){
+				$response = [
+					'msg'=>'Username dan Password tidak cocok',
+					'error'=>true
+				];
+			}else{
+				$data = array('username'=>$response->username,'id_role_pegawai'=>$response->id_role_pegawai);
+				$response = [
+					'msg'=> $data,
+					'error'=>false
+				];
+			}
+			return $this->returnData($response['msg'], $response['error']);
+		}else{
+			$response = [
+				'msg'=>'Username tidak ditemukan',
+				'error'=>true
+			];
+		}
+		
+	}
+
 	public function returnData($msg, $error)
 	{
 		$response['error'] = $error;

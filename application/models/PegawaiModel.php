@@ -156,8 +156,8 @@ class PegawaiModel extends CI_Model
         return null;
     }
 
-    public function login($request){
-        $request = $this->db->select('username,password')->from('pegawai')->where(array('username' => $username))->get()->row();
+    public function login($username){
+        $request = $this->db->select('username,password,id_role_pegawai')->from('pegawai')->where(array('username' => $username))->get()->row();
         if($request != null){
             return $request->id;
         }
