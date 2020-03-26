@@ -14,6 +14,7 @@ class Produk extends REST_Controller
         $this->load->model('ProdukModel');
 		$this->load->model('KategoriProdukModel');
 		$this->load->model('PegawaiModel');
+		$this->load->library('upload');
 		$this->load->library('form_validation');
 	}
 
@@ -74,7 +75,12 @@ class Produk extends REST_Controller
         $data->harga = $this->post('harga');
 		$data->satuan = $this->post('satuan');
 		$data->jmlh_min = $this->post('jmlh_min');
-        $data->jmlh = $this->post('jmlh');
+		$data->jmlh = $this->post('jmlh');
+		$response = $this->uploadGambar($id);
+		if($response['error'])
+			return $this->returnData($response['msg'], $response['error']);
+		else
+			$data->url_gambar = $response['msg'];
 		if($id != null){
             $data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			$response = $this->ProdukModel->update($data);
@@ -108,6 +114,46 @@ class Produk extends REST_Controller
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
+	public function uploadGambar($id)
+	{
+			$config['upload_path']          = './resource/';
+			$config['allowed_types']        = 'gif|jpg|png';
+			$config['max_size']             = 100*1024;
+			$config['encrypt_name']			= true;
+
+			$this->upload->initialize($config);
+
+			if ( ! $this->upload->do_upload('url_gambar'))
+			{
+				if($this->upload->display_errors("","") == "You did not select a file to upload."){
+					if($id!=null){
+						return [
+							'msg'=> $this->ProdukModel->getImageUrl($id),
+							'error'=>false
+						];
+					}else{
+						return [
+							'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource/default.png',
+							'error'=>false
+						];
+					}
+				}else{
+					return [
+						'msg'=> $this->upload->display_errors("",""),
+						'error'=>true
+					];
+				}
+					
+			}
+			else
+			{
+				return [
+					'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource/'.$this->upload->data("file_name"),
+					'error'=>false
+				];
+			}
+	}
+	
 	public function returnData($msg, $error)
 	{
 		$response['error'] = $error;
@@ -124,7 +170,8 @@ class data
     public $harga;
     public $satuan;
     public $jmlh_min;
-    public $jmlh;
+	public $jmlh;
+	public $url_gambar;
 	public $created_by;
 	public $updaetd_by;
 }

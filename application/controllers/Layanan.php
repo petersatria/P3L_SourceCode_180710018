@@ -78,7 +78,7 @@ class Layanan extends REST_Controller
         $data->id_ukuran_hewan = $this->post('id_ukuran_hewan');
         $data->harga = $this->post('harga');
 		$data->id_layanan = $this->post('id_layanan');
-		$response = $this->uploadGambar();
+		$response = $this->uploadGambar($id);
 		if($response['error'])
 			return $this->returnData($response['msg'], $response['error']);
 		else
@@ -116,17 +116,12 @@ class Layanan extends REST_Controller
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
-	public function image_get(){
-        echo '../../rest_api-kouvee-pet-shop/resource/c471fc6117d6b751cee8684de7cf5697.png';
-	}
 	
-	public function uploadGambar()
+	public function uploadGambar($id)
 	{
 			$config['upload_path']          = './resource/';
 			$config['allowed_types']        = 'gif|jpg|png';
 			$config['max_size']             = 100*1024;
-			$config['max_width']            = 1024;
-			$config['max_height']           = 768;
 			$config['encrypt_name']			= true;
 
 			$this->upload->initialize($config);
@@ -134,10 +129,17 @@ class Layanan extends REST_Controller
 			if ( ! $this->upload->do_upload('url_gambar'))
 			{
 				if($this->upload->display_errors("","") == "You did not select a file to upload."){
-					return [
-						'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource//default.png',
-						'error'=>false
-					];
+					if($id!=null){
+						return [
+							'msg'=> $this->LayananModel->getImageUrl($id),
+							'error'=>false
+						];
+					}else{
+						return [
+							'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource/default.png',
+							'error'=>false
+						];
+					}
 				}else{
 					return [
 						'msg'=> $this->upload->display_errors("",""),

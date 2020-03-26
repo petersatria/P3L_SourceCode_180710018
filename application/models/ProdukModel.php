@@ -11,6 +11,7 @@ class ProdukModel extends CI_Model
     public $satuan;
     public $jmlh_min;
     public $jmlh;
+    public $link_gambar;
     public $isDelete;
     public $updated_by;
     public $updated_at;
@@ -53,21 +54,25 @@ class ProdukModel extends CI_Model
     }
 
     public function get() { 
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('isDelete'=>0))->get()->result();
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,url_gambar')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,url_gambar')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
 
     public function searchForeign($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('id'=>$request,))->get()->row();
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,url_gambar')->from($this->table)->where(array('id'=>$request,))->get()->row();
     }
 
     public function searchByString($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,url_gambar')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
     }
-    
+
+    public function getImageUrl($id){
+        return $this->db->select('link_gambar')->from($this->table)->where(array('id'=>$id))->get()->row()->link_gambar;
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_kategori_produk = $request->id_kategori_produk;
@@ -75,6 +80,7 @@ class ProdukModel extends CI_Model
         $this->satuan = $request->satuan;
         $this->jmlh_min = $request->jmlh_min;
         $this->jmlh = $request->jmlh;
+        $this->link_gambar = $request->url_gambar;
         $this->created_by = $request->created_by;
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
@@ -98,6 +104,7 @@ class ProdukModel extends CI_Model
         $this->satuan = $request->satuan;
         $this->jmlh_min = $request->jmlh_min;
         $this->jmlh = $request->jmlh;
+        $this->link_gambar = $request->url_gambar;
         $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
@@ -106,7 +113,8 @@ class ProdukModel extends CI_Model
             'harga'      => $this->harga, 
             'satuan'      => $this->satuan, 
             'jmlh_min'      => $this->jmlh_min, 
-            'jmlh'      => $this->jmlh, 
+            'jmlh'      => $this->jmlh,
+            'link_gambar'      => $this->link_gambar,
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );
