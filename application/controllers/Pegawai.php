@@ -81,7 +81,7 @@ class Pegawai extends REST_Controller
 		$data->username = $this->post('username');
 		$data->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
 		if($id != null){
-			if($this->PegawaiModel->getByUsername($this->post('username')!=null) || $this->PegawaiModel->getByUsername($this->post('username')) == $data->id){
+			if($this->PegawaiModel->getByUsername($this->post('username')) == null || $this->PegawaiModel->getByUsername($this->post('username')) == $data->id){
 				$data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 				$response = $this->PegawaiModel->update($data);
 			}else{
