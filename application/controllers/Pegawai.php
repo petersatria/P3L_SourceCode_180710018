@@ -39,6 +39,25 @@ class Pegawai extends REST_Controller
 		return $this->returnData($response, false);
 	}
 
+	public function byUsername_get($username = null){
+		if($username == null){
+			return $this->returnData('Parameter Username Tidak Ditemukan', true);
+		}
+		$response = $this->PegawaiModel->getByUsername($username);
+		if($response !=null){
+			$response = [
+				'msg' => $response,
+				'error' => false
+			];
+		}else{
+			$response = [
+				'msg'=>'Username tidak ditemukan',
+				'error'=>true
+			];
+		}
+		return $this->returnData($response['msg'],$response['error']);
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
@@ -81,7 +100,7 @@ class Pegawai extends REST_Controller
 		$data->username = $this->post('username');
 		$data->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
 		if($id != null){
-			if($this->PegawaiModel->getByUsername($this->post('username')) == null || $this->PegawaiModel->getByUsername($this->post('username')) == $data->id){
+			if($this->PegawaiModel->getIdPegawai($this->post('username')) == null || $this->PegawaiModel->getIdPegawai($this->post('username')) == $data->id){
 				$data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 				$response = $this->PegawaiModel->update($data);
 			}else{
@@ -95,6 +114,29 @@ class Pegawai extends REST_Controller
 			$response = $this->PegawaiModel->store($data);
 		}
 		return $this->returnData($response['msg'], $response['error']);
+	}
+
+	public function editPassword_post($id=null){
+		if($id == null){
+			return $this->returnData('Parameter Id Tidak Ditemukan', true);
+		}
+		$validation = $this->form_validation;
+		$rule = [
+			[
+				'field' => 'password',
+				'label' => 'password',
+				'rules' => 'required'
+			]
+		];
+		$validation->set_rules($rule);
+		if(!$validation->run()) {
+			return $this->returnData($this->form_validation->error_array(), true);
+		}
+		$pegawai = new data();
+		$pegawai->id = $id;
+		$pegawai->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
+		$response = $this->PegawaiModel->editPassword($pegawai);
+		return $this->returnData($response['msg'],$response['error']);
 	}
 
 	public function delete_post($id=null){

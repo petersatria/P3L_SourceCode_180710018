@@ -152,6 +152,28 @@ class PegawaiModel extends CI_Model
         ];
     }
 
+    public function editPassword($request){
+        $this->id = $request->id;
+        $this->password = $request->password;
+        $this->updated_by = $request->id;
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'password'      => $this->password, 
+            'updated_by' => $this->updated_by, 
+            'updated_at'       => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
     public function getIdPegawai($username){
         $request = $this->db->select('id')->from('pegawai')->where(array('username' => $username))->get()->row();
         if($request != null){
@@ -169,9 +191,9 @@ class PegawaiModel extends CI_Model
     }
 
     public function getByUsername($request){
-        $request = $this->db->select('id,username')->from('pegawai')->where(array('username' => $request))->limit(1)->get()->row();
+        $request = $this->db->select('id')->from('pegawai')->where(array('username' => $request))->limit(1)->get()->row();
         if($request != null){
-            return $request->id;
+            return $request;
         }
         return null;
     }
