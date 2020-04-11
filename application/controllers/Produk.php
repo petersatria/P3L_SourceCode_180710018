@@ -80,7 +80,7 @@ class Produk extends REST_Controller
 		if($response['error'])
 			return $this->returnData($response['msg'], $response['error']);
 		else
-			$data->url_gambar = $response['msg'];
+			$data->link_gambar = $response['msg'];
 		if($id != null){
             $data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			$response = $this->ProdukModel->update($data);
@@ -171,7 +171,7 @@ class data
     public $satuan;
     public $jmlh_min;
 	public $jmlh;
-	public $url_gambar;
+	public $link_gambar;
 	public $created_by;
 	public $updaetd_by;
 }
