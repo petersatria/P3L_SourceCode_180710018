@@ -118,12 +118,11 @@ class Produk extends REST_Controller
 	{
 			$config['upload_path']          = './resource/';
 			$config['allowed_types']        = 'gif|jpg|png';
-			$config['max_size']             = 100*1024;
 			$config['encrypt_name']			= true;
 
 			$this->upload->initialize($config);
 
-			if ( ! $this->upload->do_upload('url_gambar'))
+			if ( ! $this->upload->do_upload('link_gambar'))
 			{
 				if($this->upload->display_errors("","") == "You did not select a file to upload."){
 					if($id!=null){

@@ -121,7 +121,6 @@ class Layanan extends REST_Controller
 	{
 			$config['upload_path']          = './resource/';
 			$config['allowed_types']        = 'gif|jpg|png';
-			$config['max_size']             = 100*1024;
 			$config['encrypt_name']			= true;
 
 			$this->upload->initialize($config);
