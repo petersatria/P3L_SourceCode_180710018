@@ -1,17 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 date_default_timezone_set("Asia/Jakarta");
-class TransaksiLayananModel extends CI_Model
+class MemberModel extends CI_Model
 {
-    private $table = 'transaksi_layanan';
+    private $table = 'member';
     public $id;
-    public $no_transaksi;
-    public $isMember;
+    public $nama;
     public $no_telp;
-    public $id_cashier;
-    public $id_CS;
-    public $tgl_transaksi;
-    public $status;
+    public $tanggal;
+    public $alamat;
     public $isDelete;
     public $updated_by;
     public $updated_at;
@@ -19,13 +16,8 @@ class TransaksiLayananModel extends CI_Model
     public $created_at;
     public $rule = [
         [
-            'field' => 'no_transaksi',
-            'label' => 'no_transaksi',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'isMember',
-            'label' => 'isMember',
+            'field' => 'nama',
+            'label' => 'nama',
             'rules' => 'required'
         ],
         [
@@ -34,55 +26,40 @@ class TransaksiLayananModel extends CI_Model
             'rules' => 'required'
         ],
         [
-            'field' => 'id_cashier',
-            'label' => 'id_cashier',
+            'field' => 'tanggal',
+            'label' => 'tanggal',
             'rules' => 'required'
         ],
         [
-            'field' => 'id_CS',
-            'label' => 'id_CS',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'tgl_transaksi',
-            'label' => 'tgl_transaksi',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'status',
-            'label' => 'status',
+            'field' => 'alamat',
+            'label' => 'alamat',
             'rules' => 'required'
         ]
     ];
     public function Rules() { 
         return $this->rule; 
     }
-
     
-    public function getForAdmin() { 
-        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp, id_CS, id_cashier, status,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->get()->result();
-    }
-
-    public function getForCahsier() { 
-        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->get()->result();
+    public function get() { 
+        return $this->db->select('id,nama,no_telp,tanggal,alamat')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
+        return $this->db->select('id,nama,no_telp,tanggal,alamat')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
     }
 
     public function searchForeign($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('id'=>$request))->get()->row();
+        return $this->db->select('id,nama,no_telp,tanggal,alamat')->from($this->table)->where(array('id'=>$request))->get()->row();
     }
     
     public function searchByString($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('isDelete'=>0))->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
+        return $this->db->select('id,nama,no_telp,tanggal,alamat')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
     }
 
     public function store($request) {
-        $this->no_transaksi = $request->no_transaksi;
+        $this->nama = $request->nama;
         $this->no_telp = $request->no_telp;
-        $this->tgl_transaksi = $request->tgl_transaksi;
+        $this->tanggal = $request->tanggal;
         $this->alamat = $request->alamat;
         $this->created_by = $request->created_by;
         $this->created_at = date('Y-m-d H:i:s');
@@ -101,16 +78,16 @@ class TransaksiLayananModel extends CI_Model
     
     public function update($request) {
         $this->id = $request->id;
-        $this->no_transaksi = $request->no_transaksi;
+        $this->nama = $request->nama;
         $this->no_telp = $request->no_telp;
-        $this->tgl_transaksi = $request->tgl_transaksi;
+        $this->tanggal = $request->tanggal;
         $this->alamat = $request->alamat;
         $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
-            'no_transaksi'      => $this->no_transaksi, 
+            'nama'      => $this->nama, 
             'no_telp'      => $this->no_telp, 
-            'tgl_transaksi'      => $this->tgl_transaksi, 
+            'tanggal'      => $this->tanggal, 
             'alamat'      => $this->alamat,
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
@@ -155,6 +132,5 @@ class TransaksiLayananModel extends CI_Model
         }
         return null;
     }
-
     
 }
