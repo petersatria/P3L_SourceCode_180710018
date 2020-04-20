@@ -63,28 +63,40 @@ class TransaksiLayananModel extends CI_Model
         return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp, id_CS, id_cashier, status,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->get()->result();
     }
 
-    public function getForCahsier() { 
-        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->get()->result();
+    public function getForCashier() { 
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total, 1 as isTransaksiLayanan, status')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->like('status','belum lunas')->get()->result();
+    }
+
+    public function getForCS() { 
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total, 1 as isTransaksiLayanan, status')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->like('status','belum Selesai')->get()->result();
+    }
+
+    public function searchForAdmin($request){
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp, id_CS, id_cashier, status,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->where(array('id'=>$request))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
-    }
-
-    public function searchForeign($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('id'=>$request))->get()->row();
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp, status,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->where(array('id'=>$request))->get()->result();
     }
     
-    public function searchByString($request){
-        return $this->db->select('id,no_transaksi,no_telp,tgl_transaksi,alamat')->from($this->table)->where(array('isDelete'=>0))->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
+    public function searchByStringAdmin($request){
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp, id_CS, id_cashier, status,sum(dt.harga) as total')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
+    }
+
+    public function searchByStringCashier($request){
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total, 1 as isTransaksiLayanan, status')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->like('status','belum lunas')->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
+    }
+
+    public function searchByStringCS($request){
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,sum(dt.harga) as total, 1 as isTransaksiLayanan, status')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi')->like('status','belum selesai')->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
     }
 
     public function store($request) {
-        $this->no_transaksi = $request->no_transaksi;
         $this->no_telp = $request->no_telp;
         $this->tgl_transaksi = $request->tgl_transaksi;
         $this->alamat = $request->alamat;
         $this->created_by = $request->created_by;
+        $this->status = $request->status;
         $this->created_at = date('Y-m-d H:i:s');
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
@@ -98,20 +110,32 @@ class TransaksiLayananModel extends CI_Model
             'error'=>true
         ];
     }
-    
-    public function update($request) {
+
+    public function storeNoTransaksi($request){
         $this->id = $request->id;
         $this->no_transaksi = $request->no_transaksi;
-        $this->no_telp = $request->no_telp;
-        $this->tgl_transaksi = $request->tgl_transaksi;
-        $this->alamat = $request->alamat;
+        $data = array( 
+            'no_transaksi'      => $this->no_transaksi
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+    
+    public function pay($request) {
+        $this->id = $request->id;
+        $this->status = $request->status;
         $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
-            'no_transaksi'      => $this->no_transaksi, 
-            'no_telp'      => $this->no_telp, 
-            'tgl_transaksi'      => $this->tgl_transaksi, 
-            'alamat'      => $this->alamat,
+            'status'      => $this->status,
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );
@@ -132,7 +156,7 @@ class TransaksiLayananModel extends CI_Model
         $this->updated_by = $this->getIdPegawai($request->updated_by);
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
-            'isDelete'      => 1, 
+            'status'      => 'dibatalkan', 
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );
@@ -148,7 +172,7 @@ class TransaksiLayananModel extends CI_Model
         ];
     }
 
-    public function getIdMember($created_at, $craeted_by){
+    public function getIdTransaksi($created_at, $craeted_by){
         $request = $this->db->select('id')->from($this->table)->where(array('created_by' => $created_by, 'created_at' => $created_at))->get()->row();
         if($request != null){
             return $request->id;

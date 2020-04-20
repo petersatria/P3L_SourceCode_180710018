@@ -66,7 +66,7 @@ class MemberModel extends CI_Model
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
             return [
-                'msg'=>'Berhasil',
+                'msg'=>$this->getNoTelpMember($this->created_at,$this->created_by),
                 'error'=>false
             ];
         }
@@ -106,7 +106,7 @@ class MemberModel extends CI_Model
 
     public function delete($request){
         $this->id = $request->id;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
+        $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
             'isDelete'      => 1, 
@@ -125,8 +125,16 @@ class MemberModel extends CI_Model
         ];
     }
 
-    public function getIdMember($created_at, $craeted_by){
-        $request = $this->db->select('id')->from($this->table)->where(array('created_by' => $created_by, 'created_at' => $created_at))->get()->row();
+    public function getNoTelpMember($created_at, $created_by){
+        $request = $this->db->select('no_telp')->from($this->table)->where(array('created_by' => $created_by, 'created_at' => $created_at))->get()->row();
+        if($request != null){
+            return $request->id;
+        }
+        return null;
+    }
+
+    public function getIdMemberByTelp($no_telp){
+        $request = $this->db->select('id')->from($this->table)->like('no_telp',$no_telp)->get()->row();
         if($request != null){
             return $request->id;
         }
