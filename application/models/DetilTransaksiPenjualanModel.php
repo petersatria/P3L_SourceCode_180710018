@@ -39,5 +39,97 @@ class DetilTransaksiPenjualanModel extends CI_Model
         return $this->rule; 
     }
 
+    public function get($id_transaksi) { 
+        return $this->db->select('id,id_transaksi,id_produk,jumlah,harga,(jumlah * harga) as subtotal')->from($this->table)->where(array('id_transaksi'=> $id_transaksi))->get()->result();
+    }
+
+    public function search($id) { 
+        return $this->db->select('id,id_transaksi,id_produk,jumlah,harga,(jumlah * harga) as subtotal')->from($this->table)->where(array('id'=> $id))->get()->result();
+    }
+
+    public function store($request) {
+        $this->id_produk = $request->id_produk;
+        $this->id_transaksi = $request->id_transaksi;
+        $this->harga = $request->harga;
+        $this->jumlah = $request->jumlah;
+        $this->created_by = $request->created_by;
+        $this->created_at = date('Y-m-d H:i:s');
+        if($this->db->insert($this->table, $this)){
+            return $this->updateTransaksi($this->created_at,$this->created_by);
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
+    public function update($request) {
+        $this->id = $request->id;
+        $this->jumlah = $request->jumlah;
+        $this->updated_by = $request->updated_by;
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'jumlah'      => $this->jumlah, 
+            'updated_by'      => $this->updated_by, 
+            'updated_at'      => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return $this->updateTransaksi($this->updated_at,$this->updated_by);
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
+    public function delete($request){
+        $this->id = $request->id;
+        $this->id_transaksi = $this->getIdTransaksi();
+        $this->updated_by = $request->updated_by;
+        $this->updated_at = date('Y-m-d H:i:s');
+        if($this->db->where(array('id' => $this->id))->delete($this->table)){
+            return $this->updateTransaksi($this->updated_at,$this->updated_by);
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
+    public function updateTransaksi($updated_at,$updated_by){
+        $data = array( 
+            'updated_by'      => $updated_by, 
+            'updated_at'      => $updated_at
+        );
+        if($this->db->where(array('id' => $this->id_transaksi))->update('transaksi_penjualan', $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
     
+    public function getJumlahDibeli($id_produk){
+        return $this->db->select('IFNULL(sum(dt.jumlah),0) as total')->from('detil_transaksi_penjualan dt')->join('transaksi_penjualan tp','tp.id = dt.id_transaksi')->where(array('dt.id_produk'=>$id_produk))->like('tp.status','belum lunas')->get()->row()->total;
+    }
+
+    public function getJumlahById($id){
+        return $this->db->select('jumlah')->from($this->table)->where(array('id' => $id))->get()->row()->jumlah;
+    }
+
+    public function getIdTransaksi(){
+        return $this->db->select('id_transaksi')->from($this->table)->where(array('id' => $this->id))->get()->row()->id_transaksi;
+    }
+
+    public function getId($id_transaksi,$id_produk){
+        $response = $this->db->select('id')->from($this->table)->where(array('id_produk' => $id_produk, 'id_transaksi' => $id_transaksi) )->get()->row();
+        if($response != null){
+            return $response->id;
+        }
+        return null;
+    }
 }

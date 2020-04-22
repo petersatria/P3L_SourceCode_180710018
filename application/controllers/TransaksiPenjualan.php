@@ -4,7 +4,7 @@
 use Restserver\Libraries\REST_Controller;
 require (APPPATH.'/libraries/REST_Controller.php');
 
-class TransaksiLayanan extends REST_Controller
+class TransaksiPenjualan extends REST_Controller
 {
 	public function __construct()
 	{
@@ -12,7 +12,7 @@ class TransaksiLayanan extends REST_Controller
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-		$this->load->model('TransaksiLayananModel');
+		$this->load->model('TransaksiPenjualanModel');
 		$this->load->model('PegawaiModel');
 		$this->load->model('MemberModel');
 		$this->load->library('form_validation');
@@ -21,7 +21,7 @@ class TransaksiLayanan extends REST_Controller
 	public function admin_get($id = null)
 	{
         if($id==null){
-			$response = $this->TransaksiLayananModel->getForAdmin();
+			$response = $this->TransaksiPenjualanModel->getForAdmin();
 			foreach($response as $r){
                 if($r->id_cashier != null){
                     $r->id_cashier = $this->PegawaiModel->searchForeign($r->id_cashier)->nama;
@@ -30,7 +30,7 @@ class TransaksiLayanan extends REST_Controller
             }
 			return $this->returnData($response, false);
         }else{
-			$response = $this->TransaksiLayananModel->searchForAdmin($id);
+			$response = $this->TransaksiPenjualanModel->searchForAdmin($id);
 			if($response->id_cashier != null){
 				$response->id_cashier = $this->PegawaiModel->searchForeign($response->id_cashier)->nama;
 			}
@@ -39,30 +39,19 @@ class TransaksiLayanan extends REST_Controller
 		}
 	}
 
-	public function cs_get($id = null)
+	public function index_get($id = null)
 	{
         if($id==null){
-			$response = $this->TransaksiLayananModel->getForCS();
+			$response = $this->TransaksiPenjualanModel->get();
 			return $this->returnData($response, false);
         }else{
-			$response = $this->TransaksiLayananModel->searchForCS($id);
-			return $this->returnData($response,false);
-		}
-	}
-
-	public function cashier_get($id = null)
-	{
-        if($id==null){
-			$response = $this->TransaksiLayananModel->getForCashier();
-			return $this->returnData($response, false);
-        }else{
-			$response = $this->TransaksiLayananModel->searchForCashier($id);
+			$response = $this->TransaksiPenjualanModel->search($id);
 			return $this->returnData($response,false);
 		}
 	}
 
 	public function adminByString_get($nama = null){
-		$response = $this->TransaksiLayananModel->searchByStringAdmin($nama);
+		$response = $this->TransaksiPenjualanModel->searchByStringAdmin($nama);
 		foreach($response as $r){
 			if($r->id_cashier != null){
 				$r->id_cashier = $this->PegawaiModel->searchForeign($r->id_cashier)->nama;
@@ -74,20 +63,15 @@ class TransaksiLayanan extends REST_Controller
 		return $this->returnData($response, false);
 	}
 
-	public function cashierByString_get($nama = null){
-		$response = $this->TransaksiLayananModel->searchByStringCashier($nama);
-		return $this->returnData($response, false);
-	}
-
-	public function csByString_get($nama = null){
-		$response = $this->TransaksiLayananModel->searchByStringCS($nama);
+	public function ByString_get($nama = null){
+		$response = $this->TransaksiPenjualanModel->searchByString($nama);
 		return $this->returnData($response, false);
 	}
 
 	public function index_post()
 	{
 		$validation = $this->form_validation;
-		$rule = $this->TransaksiLayananModel->rules();
+		$rule = $this->TransaksiPenjualanModel->rules();
 		array_push(
 			$rule,
 			[
@@ -104,10 +88,10 @@ class TransaksiLayanan extends REST_Controller
 		$ukuran->is_member = $this->post('is_member');
 		$ukuran->no_telp = $this->post('no_telp');
 		$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
-		$ukuran->status = 'belum selesai';
+		$ukuran->status = 'belum lunas';
 		$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
 		if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
-			$response = $this->TransaksiLayananModel->store($ukuran);
+			$response = $this->TransaksiPenjualanModel->store($ukuran);
 		}else{
 			$response = [
 				'msg' => 'Member dengan Nomor Telepon tidak tersedia',
@@ -115,29 +99,6 @@ class TransaksiLayanan extends REST_Controller
 			];
 		}
 		
-		return $this->returnData($response['msg'], $response['error']);
-	}
-
-	public function done_post($id=null){
-		if($id == null){
-			return $this->returnData('Parameter Id Tidak Ditemukan', true);
-		}
-		$validation = $this->form_validation;
-		$rule = [
-			[
-				'field' => 'updated_by',
-				'label' => 'updated_by',
-				'rules' => 'required'
-			]
-		];
-		$validation->set_rules($rule);
-		if(!$validation->run()) {
-			return $this->returnData($this->form_validation->error_array(), true);
-		}
-		$ukuran = new data();
-		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-		$ukuran->id = $id;
-		$response = $this->TransaksiLayananModel->done($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
@@ -160,7 +121,7 @@ class TransaksiLayanan extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
-		$response = $this->TransaksiLayananModel->pay($ukuran);
+		$response = $this->TransaksiPenjualanModel->pay($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
@@ -183,7 +144,7 @@ class TransaksiLayanan extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
-		$response = $this->TransaksiLayananModel->cancel($ukuran);
+		$response = $this->TransaksiPenjualanModel->cancel($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 

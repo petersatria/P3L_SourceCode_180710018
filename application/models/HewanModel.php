@@ -50,6 +50,10 @@ class HewanModel extends CI_Model
         return $this->db->select('id,nama,id_jenis_hewan,tanggal_lahir')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
     }
 
+    public function getId(){
+        return $this->db->select('id')->from($this->table)->where(array('created_at'=>$this->created_at,'created_by'=>$this->created_by))->get()->row()->id;
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_jenis_hewan = $request->id_jenis_hewan;
@@ -58,10 +62,13 @@ class HewanModel extends CI_Model
         $this->isDelete = 0;
         $this->created_at = date('Y-m-d H:i:s');
         if($this->db->insert($this->table, $this)){
-            return [
-                'msg'=>'Berhasil',
-                'error'=>false
-            ];
+            $this->id = $this->getId();
+            if($this->id != null){
+                return [
+                    'msg'=> $this->id,
+                    'error'=>false
+                ];
+            }
         }
         return [
             'msg'=>'Gagal',
@@ -85,7 +92,7 @@ class HewanModel extends CI_Model
         );
         if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
             return [
-                'msg'=>'Berhasil',
+                'msg'=> $this->id,
                 'error'=>false
             ];
         }
@@ -105,6 +112,20 @@ class HewanModel extends CI_Model
             'updated_at'       => $this->updated_at
         );
         if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
+    public function hardDelete($request){
+        $this->id = $request->id;
+        if($this->db->where(array('id' => $this->id))->delete($this->table)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false

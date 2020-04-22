@@ -73,6 +73,10 @@ class ProdukModel extends CI_Model
         return $this->db->select('link_gambar')->from($this->table)->where(array('id'=>$id))->get()->row()->link_gambar;
     }
 
+    public function getJumlahProduk($id){
+        return $this->db->select('jmlh')->from($this->table)->where(array('id'=>$id))->get()->row()->jmlh;
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_kategori_produk = $request->id_kategori_produk;
@@ -115,6 +119,28 @@ class ProdukModel extends CI_Model
             'jmlh_min'      => $this->jmlh_min, 
             'jmlh'      => $this->jmlh,
             'link_gambar'      => $this->link_gambar,
+            'updated_by' => $this->updated_by, 
+            'updated_at'       => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
+    public function updateStock($request){
+        $this->id = $request->id;
+        $this->jmlh = $request->jumlah;
+        $this->updated_by = $request->updated_by;
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'jmlh'      => $this->jmlh, 
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );

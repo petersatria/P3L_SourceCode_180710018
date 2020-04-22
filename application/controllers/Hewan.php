@@ -125,5 +125,5 @@ class data
     public $id_jenis_hewan;
     public $tanggal_lahir;
 	public $created_by;
-	public $updaetd_by;
+	public $updated_by;
 }
