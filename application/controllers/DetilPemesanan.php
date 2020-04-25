@@ -4,7 +4,7 @@
 use Restserver\Libraries\REST_Controller;
 require (APPPATH.'/libraries/REST_Controller.php');
 
-class DetilTransaksiPenjualan extends REST_Controller
+class DetilPemesanan extends REST_Controller
 {
 	public function __construct()
 	{
@@ -12,10 +12,10 @@ class DetilTransaksiPenjualan extends REST_Controller
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-		$this->load->model('DetilTransaksiPenjualanModel');
+		$this->load->model('DetilPemesananModel');
 		$this->load->model('PegawaiModel');
         $this->load->model('ProdukModel');
-        $this->load->model('TransaksiPenjualanModel');
+        $this->load->model('PemesananModel');
 		$this->load->library('form_validation');
 	}
 
@@ -24,7 +24,7 @@ class DetilTransaksiPenjualan extends REST_Controller
         if($idTransaksi==null){
 			return $this->returnData('Parameter Id Transaksi Tidak Ditemukan', true);
         }else{
-			$response = $this->DetilTransaksiPenjualanModel->get($idTransaksi);
+			$response = $this->DetilPemesananModel->get($idTransaksi);
 			foreach($response as $r){
                 $r->id_produk = $this->ProdukModel->searchForeign($r->id_produk)->nama;
             }
@@ -37,7 +37,7 @@ class DetilTransaksiPenjualan extends REST_Controller
         if($id==null){
 			return $this->returnData('Parameter Id Tidak Ditemukan', true);
         }else{
-			$response = $this->DetilTransaksiPenjualanModel->search($id);
+			$response = $this->DetilPemesananModel->search($id);
 			return $this->returnData($response,false);
 		}
 	}
@@ -45,7 +45,7 @@ class DetilTransaksiPenjualan extends REST_Controller
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
-		$rule = $this->DetilTransaksiPenjualanModel->rules();
+		$rule = $this->DetilPemesananModel->rules();
 		if($id != null){
 			array_push(
 				$rule,
@@ -69,38 +69,22 @@ class DetilTransaksiPenjualan extends REST_Controller
 		if (!$validation->run()) {
 			return $this->returnData($this->form_validation->error_array(), true);
         }
-        $id = $this->DetilTransaksiPenjualanModel->getId($this->post('id_transaksi'),$this->post('id_produk'));
+        $id = $this->DetilPemesananModel->getId($this->post('id_pemesanan'),$this->post('id_produk'));
 		if($id != null){
 			$ukuran = new data();
 			$ukuran->id = $id;
             $ukuran->id_produk = $this->post('id_produk');
-            $ukuran->id_transaksi = $this->post('id_transaksi');
-            $ukuran->harga = $this->post('harga');
+            $ukuran->id_pemesanan = $this->post('id_pemesanan');
             $ukuran->jumlah = $this->post('jumlah');
-			$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-			if((int)$this->ProdukModel->getJumlahProduk($ukuran->id_produk) - (int)$ukuran->jumlah - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($ukuran->id_produk) + (int)$this->DetilTransaksiPenjualanModel->getJumlahById($ukuran->id) < 0){
-                $response = [
-                    'msg' => 'Jumlah Tidak Tersedia',
-                    'error' => true
-                ];
-            }else{
-                $response = $this->DetilTransaksiPenjualanModel->update($ukuran);
-            }
+            $ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
+			$response = $this->DetilPemesananModel->update($ukuran);
 		}else{
 			$ukuran = new data();
 			$ukuran->id_produk = $this->post('id_produk');
-            $ukuran->id_transaksi = $this->post('id_transaksi');
-            $ukuran->harga = $this->post('harga');
+            $ukuran->id_pemesanan = $this->post('id_pemesanan');
             $ukuran->jumlah = $this->post('jumlah');
-            $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
-            if((int)$this->ProdukModel->getJumlahProduk($ukuran->id_produk) - (int)$ukuran->jumlah - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($ukuran->id_produk) < 0){
-                $response = [
-                    'msg' => 'Jumlah Tidak Tersedia',
-                    'error' => true
-                ];
-            }else{
-                $response = $this->DetilTransaksiPenjualanModel->store($ukuran);
-            }
+            $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
+            $response = $this->DetilPemesananModel->store($ukuran);
 		}
 		return $this->returnData($response['msg'], $response['error']);
 	}
@@ -124,7 +108,7 @@ class DetilTransaksiPenjualan extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
-		$response = $this->DetilTransaksiPenjualanModel->delete($ukuran);
+		$response = $this->DetilPemesananModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
@@ -139,9 +123,8 @@ class DetilTransaksiPenjualan extends REST_Controller
 class data
 {
 	public $id;
+    public $id_pemesanan;
     public $id_produk;
-    public $id_transaksi;
-    public $harga;
     public $jumlah;
 	public $created_by;
 	public $updaetd_by;

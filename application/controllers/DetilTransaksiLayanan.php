@@ -58,8 +58,8 @@ class DetilTransaksiLayanan extends REST_Controller
 			array_push(
 				$rule,
 				[
-					'field' => 'updated_by',
-					'label' => 'updated_by',
+					'field' => 'pegawai',
+					'label' => 'pegawai',
 					'rules' => 'required'
 				]
 			);
@@ -67,8 +67,8 @@ class DetilTransaksiLayanan extends REST_Controller
 			array_push(
 				$rule,
 				[
-					'field' => 'created_by',
-					'label' => 'craeted_by',
+					'field' => 'pegawai',
+					'label' => 'pegawai',
 					'rules' => 'required'
 				]
 			);
