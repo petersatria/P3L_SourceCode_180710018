@@ -42,6 +42,15 @@ class DetilTransaksiPenjualan extends REST_Controller
 		}
 	}
 
+	public function getJumlah_get($id_transaksi = null , $id_produk = null){
+		if($id_transaksi==null||$id_produk==null){
+			return $this->returnData('Parameter Id Tidak Ditemukan', true);
+        }else{
+			$response = $this->DetilTransaksiPenjualanModel->getJumlah($id_transaksi,$id_produk);
+			return $this->returnData($response,false);
+		}
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;

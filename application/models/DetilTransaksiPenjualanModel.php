@@ -132,4 +132,12 @@ class DetilTransaksiPenjualanModel extends CI_Model
         }
         return null;
     }
+
+    public function getJumlah($id_transaksi,$id_produk){
+        $response = $this->db->select('jumlah')->from($this->table)->where(array('id_produk' => $id_produk, 'id_transaksi' => $id_transaksi) )->get()->row();
+        if($response != null){
+            return $response->jumlah;
+        }
+        return 0;
+    }
 }
