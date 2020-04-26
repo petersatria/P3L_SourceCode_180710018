@@ -86,7 +86,7 @@ class DetilTransaksiPenjualan extends REST_Controller
             $ukuran->id_transaksi = $this->post('id_transaksi');
             $ukuran->harga = $this->post('harga');
             $ukuran->jumlah = $this->post('jumlah');
-			$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
+			$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
 			if((int)$this->ProdukModel->getJumlahProduk($ukuran->id_produk) - (int)$ukuran->jumlah - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($ukuran->id_produk) + (int)$this->DetilTransaksiPenjualanModel->getJumlahById($ukuran->id) < 0){
                 $response = [
                     'msg' => 'Jumlah Tidak Tersedia',
@@ -101,7 +101,7 @@ class DetilTransaksiPenjualan extends REST_Controller
             $ukuran->id_transaksi = $this->post('id_transaksi');
             $ukuran->harga = $this->post('harga');
             $ukuran->jumlah = $this->post('jumlah');
-            $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+            $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
             if((int)$this->ProdukModel->getJumlahProduk($ukuran->id_produk) - (int)$ukuran->jumlah - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($ukuran->id_produk) < 0){
                 $response = [
                     'msg' => 'Jumlah Tidak Tersedia',
