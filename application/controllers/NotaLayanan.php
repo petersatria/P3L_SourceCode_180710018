@@ -2,39 +2,49 @@
 use Restserver\Libraries\REST_Controller;
 require (APPPATH.'/libraries/REST_Controller.php');
 
-Class NotaProduk extends REST_Controller{
+Class NotaLayanan extends REST_Controller{
     
     function __construct() {
         header('Access-Control-Allow-Origin: *');
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-        $this->load->model('NotaProdukModel');
+        $this->load->model('NotaLayananModel');
         $this->load->library('pdf');
     }
     
     function index_get(){
         // $no = $this->post('no_transaksi');
         // $diskon = $this->post('diskon');
-        $no = 'PR-210420-08';
+        $no = 'LY-010320-01';
         $diskon = 20000;
-        $produk = $this->get_produk($no);
+        $layanan = $this->get_layanan($no);
 
-        $isMember = $produk[0]->is_member;
+        $isMember = $layanan[0]->is_member;
         if ($isMember == 1) {
-            $member = $this->get_member($produk[0]->no_telp);
+            $member = $this->get_member($layanan[0]->no_telp);
             $member_nama = $member[0]->nama;
         }
         else{
             $member_nama = '-';
             $member_telp = '-';
         }
-            
-        $cs = $this->get_pegawai($produk[0]->pegawai_cs);
-        $cs_nama = $cs[0]->nama;
+        
+        if($layanan[0]->id_CS != null) {
+            $cs = $this->get_pegawai($layanan[0]->id_CS);
+            $cs_nama = $cs[0]->nama;
+        }
+        else{
+            $cs_nama = '-';
+        }
 
-        $kasir = $this->get_pegawai($produk[0]->pegawai_cashier);
-        $kasir_nama = $kasir[0]->nama;
+        if($layanan[0]->id_cashier != null) {
+            $kasir = $this->get_pegawai($layanan[0]->id_cashier);
+            $kasir_nama = $kasir[0]->nama;
+        }
+        else{
+            $kasir_nama = '-';
+        }
 
         $pdf = new FPDF('P','mm','A4');
         $pdf->AddPage();
@@ -52,7 +62,7 @@ Class NotaProduk extends REST_Controller{
         $pdf->Cell(10,2,'',0,1);
 
         $pdf->SetFont('Arial','',12);
-        $pdf->Cell(190,6,$produk[0]->created_at,0,1,'R');
+        $pdf->Cell(190,6,$layanan[0]->created_at,0,1,'R');
 
         $pdf->Cell(10,4,'',0,1);
 
@@ -62,13 +72,13 @@ Class NotaProduk extends REST_Controller{
 
         $pdf->Cell(140,6,'Member : '.$member_nama,0,0,'L');
         $pdf->Cell(50,6,'CS    : '.$cs_nama,0,1,'L');
-        $pdf->Cell(140,6,'Telepon : '.$produk[0]->no_telp,0,0,'L');
+        $pdf->Cell(140,6,'Telepon : '.$layanan[0]->no_telp,0,0,'L');
         $pdf->Cell(50,6,'Kasir : '.$kasir_nama,0,1,'L');
 
         $pdf->Cell(190,6,'________________________________________________________________________________',0,1);
         $pdf->Cell(190,3,'',0,1,'C');
         $pdf->SetFont('Arial','B',13);
-        $pdf->Cell(190,6,'Produk',0,1,'C');
+        $pdf->Cell(190,6,'Jenis Layanan',0,1,'C');
 
         $pdf->SetFont('Arial','',12);
         $pdf->Cell(190,6,'________________________________________________________________________________',0,1);
@@ -77,17 +87,17 @@ Class NotaProduk extends REST_Controller{
         
         $pdf->SetFont('Arial','B',11);
         $pdf->Cell(10,6,'No',1,0, 'C');
-        $pdf->Cell(100,6,'Nama Produk',1,0, 'C');
+        $pdf->Cell(100,6,'Nama Jenis Layanan',1,0, 'C');
         $pdf->Cell(30,6,'Harga',1,0, 'C');
         $pdf->Cell(15,6,'Jumlah',1,0, 'C');
-        $pdf->Cell(35,6,'Harga',1,1, 'C');
+        $pdf->Cell(35,6,'Sub Total',1,1, 'C');
         $pdf->SetFont('Arial','',11, 'C');
         
         $total_harga = 0;
 
-        foreach ($produk as $key => $rows){
+        foreach ($layanan as $key => $rows){
             $pdf->Cell(10,6,$key+1,1,0, 'C');
-            $pdf->Cell(100,6,$rows->nama,1,0);
+            $pdf->Cell(100,6,$rows->nama_layanan,1,0);
             $pdf->Cell(30,6,$this->rupiah($rows->harga),1,0);
             $pdf->Cell(15,6,$rows->jumlah,1,0,'C');
             $pdf->Cell(35,6,$this->rupiah($rows->harga_total),1,1);
@@ -119,20 +129,20 @@ Class NotaProduk extends REST_Controller{
         return $hasil_rupiah;
     }
 
-    public function get_produk($no){
-        return $this->NotaProdukModel->get($no);
+    public function get_layanan($no){
+        return $this->NotaLayananModel->get($no);
     }
 
     public function get_pegawai($id_pegawai){
-        return $this->NotaProdukModel->get_pegawai($id_pegawai);
+        return $this->NotaLayananModel->get_pegawai($id_pegawai);
     }
 
     public function get_member($id_member){
-        return $this->NotaProdukModel->get_member($id_member);
+        return $this->NotaLayananModel->get_member($id_member);
     }
     
     public function test_get(){
-        return $this->response($this->NotaProdukModel->get('PR-210420-08'));
+        return $this->response($this->NotaLayananModel->get('LY-010320-01'));
     }
     
 }
