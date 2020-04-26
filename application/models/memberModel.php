@@ -128,7 +128,7 @@ class MemberModel extends CI_Model
     public function getNoTelpMember($created_at, $created_by){
         $request = $this->db->select('no_telp')->from($this->table)->where(array('created_by' => $created_by, 'created_at' => $created_at))->get()->row();
         if($request != null){
-            return $request->id;
+            return $request->no_telp;
         }
         return null;
     }
