@@ -84,36 +84,70 @@ class TransaksiLayanan extends REST_Controller
 		return $this->returnData($response, false);
 	}
 
-	public function index_post()
+	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
 		$rule = $this->TransaksiLayananModel->rules();
-		array_push(
-			$rule,
-			[
-				'field' => 'created_by',
-				'label' => 'craeted_by',
-				'rules' => 'required'
-			]
-		);
+		if($id = null){
+			array_push(
+				$rule,
+				[
+					'field' => 'created_by',
+					'label' => 'craeted_by',
+					'rules' => 'required'
+				]
+			);
+		}else{
+			array_push(
+				$rule,
+				[
+					'field' => 'updated_by',
+					'label' => 'updated_by',
+					'rules' => 'required'
+				]
+			);
+		}
 		$validation->set_rules($rule);
 		if (!$validation->run()) {
 			return $this->returnData($this->form_validation->error_array(), true);
 		}
 		$ukuran = new data();
-		$ukuran->is_member = $this->post('is_member');
-		$ukuran->no_telp = $this->post('no_telp');
-		$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
-		$ukuran->status = 'belum selesai';
-		$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
-		if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
-			$response = $this->TransaksiLayananModel->store($ukuran);
+		if($id == null){
+			$ukuran->is_member = $this->post('is_member');
+			$ukuran->no_telp = $this->post('no_telp');
+			$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
+			$ukuran->status = 'belum selesai';
+			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+			if($ukuran->is_member == '0' && $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+				$ukuran->is_member = '1';
+			}
+			if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+				$response = $this->TransaksiLayananModel->store($ukuran);
+			}else{
+				$response = [
+					'msg' => 'Member dengan Nomor Telepon tidak tersedia',
+					'error' => true 
+				];
+			}
 		}else{
-			$response = [
-				'msg' => 'Member dengan Nomor Telepon tidak tersedia',
-				'error' => true 
-			];
+			$ukuran->is_member = $this->post('is_member');
+			$ukuran->no_telp = $this->post('no_telp');
+			$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
+			$ukuran->status = 'belum selesai';
+			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+			if($ukuran->is_member == '0' && $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+				$ukuran->is_member = '1';
+			}
+			if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+				$response = $this->TransaksiLayananModel->store($ukuran);
+			}else{
+				$response = [
+					'msg' => 'Member dengan Nomor Telepon tidak tersedia',
+					'error' => true 
+				];
+			}
 		}
+		
 		
 		return $this->returnData($response['msg'], $response['error']);
 	}
