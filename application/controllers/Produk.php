@@ -11,7 +11,8 @@ class Produk extends REST_Controller
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-        $this->load->model('ProdukModel');
+		$this->load->model('ProdukModel');
+		$this->load->model('DetilTransaksiPenjualanModel');
 		$this->load->model('KategoriProdukModel');
 		$this->load->model('PegawaiModel');
 		$this->load->library('upload');
@@ -39,6 +40,15 @@ class Produk extends REST_Controller
 			$r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
 		}
 		return $this->returnData($response, false);
+	}
+
+	public function stock_get($id = null){
+		if($id == null){
+			return $this->returnData('Parameter Id Tidak Ditemukan', true);
+		}
+		$jumlah = (int)$this->ProdukModel->getJumlahProduk($id) - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($id);
+		return $this->returnData($jumlah, false);
+		
 	}
 
 	public function index_post($id = null)
