@@ -40,7 +40,7 @@ class DetilTransaksiPenjualanModel extends CI_Model
     }
 
     public function get($id_transaksi) { 
-        return $this->db->select('id,id_transaksi,id_produk,jumlah,harga,(jumlah * harga) as subtotal')->from($this->table)->where(array('id_transaksi'=> $id_transaksi))->get()->result();
+        return $this->db->select('dt.id,dt.id_transaksi,dt.id_produk,dt.jumlah,dt.harga,(dt.jumlah * dt.harga) as subtotal, p.link_gambar')->from('detil_transaksi_penjualan dt')->join('produk p','p.id = dt.id_produk')->where(array('dt.id_transaksi'=> $id_transaksi))->get()->result();
     }
 
     public function search($id) { 

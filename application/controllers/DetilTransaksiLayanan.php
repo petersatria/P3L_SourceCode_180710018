@@ -34,7 +34,7 @@ class DetilTransaksiLayanan extends REST_Controller
                 $nama_uh = $this->UkuranHewanModel->searchForeign($id_ukuran_hewan)->nama;
                 $nama_jl = $this->JenisLayananModel->searchForeign($jenis_layanan)->nama;
                 $r->id_layanan = $nama_jl.' '.$nama_uh;
-                $r->id_hewan = $this->HewanModel->searchForeign($r->id_hewan)->nama;
+				$r->id_hewan = $this->HewanModel->searchForeign($r->id_hewan)->nama;
             }
 			return $this->returnData($response,false);
 		}
@@ -159,7 +159,7 @@ class data
     public $id_layanan;
     public $id_hewan;
     public $harga;
-    public $jumlah;
+	public $jumlah;
     public $id_transaksi;
 	public $created_by;
 	public $updaetd_by;
