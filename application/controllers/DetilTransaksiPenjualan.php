@@ -25,9 +25,6 @@ class DetilTransaksiPenjualan extends REST_Controller
 			return $this->returnData('Parameter Id Transaksi Tidak Ditemukan', true);
         }else{
 			$response = $this->DetilTransaksiPenjualanModel->get($idTransaksi);
-			foreach($response as $r){
-                $r->id_produk = $this->ProdukModel->searchForeign($r->id_produk)->nama;
-            }
 			return $this->returnData($response,false);
 		}
     }
