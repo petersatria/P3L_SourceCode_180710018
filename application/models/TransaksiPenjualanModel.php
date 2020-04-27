@@ -88,6 +88,31 @@ class TransaksiPenjualanModel extends CI_Model
         ];
     }
 
+    public function update($request){
+        $this->id = $request->id;
+        $this->is_member = $request->is_member;
+        $this->no_telp = $request->no_telp;
+        $this->updated_by = $request->updated_by;
+        $this->updated_at = date('Y-m-d H:i:s');
+        $data = array( 
+            'no_telp'      => $this->no_telp,
+            'is_member'      => $this->is_member,
+            'status'      => 'belum lunas',
+            'updated_by' => $this->updated_by, 
+            'updated_at'       => $this->updated_at
+        );
+        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
+
     public function storeNoTransaksi(){
         $data = array( 
             'no_transaksi'      => $this->no_transaksi
