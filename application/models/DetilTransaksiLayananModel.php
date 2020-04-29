@@ -56,11 +56,11 @@ class DetilTransaksiLayananModel extends CI_Model
     }
 
     public function get($id_transaksi){
-        return $this->db->select('dt.id,dt.id_layanan,dt.id_hewan,dt.harga,dt.jumlah,(dt.harga * dt.jumlah) as subtotal,l.url_gambar')->from('detil_transaksi_layanan dt')->join('layanan l','l.id = dt.id_layanan')->where(array('dt.id_transaksi'=>$id_transaksi))->get()->result();
+        return $this->db->select('dt.id,dt.id_layanan,CONCAT(j.nama, " ", u.nama) as nama_layanan,dt.id_hewan, h.nama as nama_hewan,dt.harga,dt.jumlah,(dt.harga * dt.jumlah) as subtotal,l.url_gambar')->from('detil_transaksi_layanan dt')->join('layanan l','l.id = dt.id_layanan')->join('ukuran_hewan u','u.id = l.id_ukuran_hewan')->join('hewan h','h.id = dt.id_hewan')->join('jenis_layanan j','j.id = l.id_layanan')->where(array('dt.id_transaksi'=>$id_transaksi))->get()->result();
     }
 
     public function search($id){
-        return $this->db->select('id,id_layanan,id_hewan,harga,jumlah')->from($this->table)->where(array('id'=>$id))->get()->result();
+        return $this->db->select('dt.id,dt.id_layanan,CONCAT(j.nama, " ", u.nama) as nama_layanan, h.nama as nama_hewan, h.tanggal_lahir, h.id_jenis_hewan,dt.harga,dt.jumlah,l.url_gambar')->from('detil_transaksi_layanan dt')->join('layanan l','l.id = dt.id_layanan')->join('ukuran_hewan u','u.id = l.id_ukuran_hewan')->join('hewan h','h.id = dt.id_hewan')->join('jenis_layanan j','j.id = l.id_layanan')->where(array('dt.id'=>$id))->get()->result();
     }
 
     public function getIdHewanById($id){

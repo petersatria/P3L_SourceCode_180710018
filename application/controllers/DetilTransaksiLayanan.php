@@ -28,14 +28,6 @@ class DetilTransaksiLayanan extends REST_Controller
 			return $this->returnData('Parameter Id Transaksi Tidak Ditemukan', true);
         }else{
 			$response = $this->DetilTransaksiLayananModel->get($idTransaksi);
-			foreach($response as $r){
-                $id_ukuran_hewan = $this->LayananModel->searchForeign($r->id_layanan)->id_ukuran_hewan;
-                $jenis_layanan = $this->LayananModel->searchForeign($r->id_layanan)->id_layanan;
-                $nama_uh = $this->UkuranHewanModel->searchForeign($id_ukuran_hewan)->nama;
-                $nama_jl = $this->JenisLayananModel->searchForeign($jenis_layanan)->nama;
-                $r->id_layanan = $nama_jl.' '.$nama_uh;
-				$r->id_hewan = $this->HewanModel->searchForeign($r->id_hewan)->nama;
-            }
 			return $this->returnData($response,false);
 		}
     }
