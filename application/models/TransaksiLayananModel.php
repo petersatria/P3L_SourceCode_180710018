@@ -47,7 +47,7 @@ class TransaksiLayananModel extends CI_Model
     }
 
     public function getForCS() { 
-        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,IFNULL(sum(dt.harga),0) as total, 1 as isTransaksiLayanan, status')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi','left')->like('status','belum Selesai')->group_by('tl.id')->get()->result();
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,IFNULL(sum(dt.harga),0) as total, 1 as isTransaksiLayanan, tl.status,if((ifnull(p.id,0) = 0) ,0, 1) AS isPayed')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi','left')->join('pembayaran_layanan p','tl.id=p.id_transaksi','left')->like('status','belum Selesai')->group_by('tl.id')->get()->result();
     }
 
     public function searchForAdmin($request){
