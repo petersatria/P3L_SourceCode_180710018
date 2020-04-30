@@ -15,6 +15,7 @@ class TransaksiLayanan extends REST_Controller
 		$this->load->model('TransaksiLayananModel');
 		$this->load->model('PegawaiModel');
 		$this->load->model('MemberModel');
+		$this->load->model('PembayaranLayananModel');
 		$this->load->library('form_validation');
 	}
 
@@ -130,22 +131,30 @@ class TransaksiLayanan extends REST_Controller
 				];
 			}
 		}else{
-			$ukuran->is_member = $this->post('is_member');
-			$ukuran->no_telp = $this->post('no_telp');
-			$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
-			$ukuran->status = 'belum selesai';
-			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
-			if($ukuran->is_member == '0' && $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
-				$ukuran->is_member = '1';
-			}
-			if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
-				$response = $this->TransaksiLayananModel->store($ukuran);
+			if($this->PembayaranLayananModel->isPayed($id) != null){
+				$ukuran->is_member = $this->post('is_member');
+				$ukuran->no_telp = $this->post('no_telp');
+				$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
+				$ukuran->status = 'belum selesai';
+				$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+				if($ukuran->is_member == '0' && $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+					$ukuran->is_member = '1';
+				}
+				if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
+					$response = $this->TransaksiLayananModel->store($ukuran);
+				}else{
+					$response = [
+						'msg' => 'Member dengan Nomor Telepon tidak tersedia',
+						'error' => true 
+					];
+				}
 			}else{
 				$response = [
-					'msg' => 'Member dengan Nomor Telepon tidak tersedia',
+					'msg' => 'Transaksi sudah dibayar dan tidak bisa ubah',
 					'error' => true 
 				];
 			}
+			
 		}
 		
 		
@@ -171,6 +180,11 @@ class TransaksiLayanan extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
+		if($this->PembayaranLayananModel->isPayed($id) != null){
+			$ukuran->status = 'lunas';
+		}else{
+			$ukuran->status = 'belum lunas';
+		}
 		$response = $this->TransaksiLayananModel->done($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}
@@ -194,6 +208,11 @@ class TransaksiLayanan extends REST_Controller
 		$ukuran = new data();
 		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 		$ukuran->id = $id;
+		if($this->TransaksiLayananModel->isDone($id) != null){
+			$ukuran->status = 'lunas';
+		}else{
+			$ukuran->status = 'belum selesai';
+		}
 		$response = $this->TransaksiLayananModel->pay($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
 	}

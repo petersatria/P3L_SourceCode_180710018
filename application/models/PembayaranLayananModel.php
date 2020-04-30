@@ -37,6 +37,14 @@ class PembayaranLayananModel extends CI_Model
         return $this->db->select('id_transaksi,diskon,bayar')->from($this->table)->where(array('id_transaksi'=>$id_transaksi))->get()->row();
     }
 
+    public function isPayed($id_transaksi){
+        $result = $this->db->select('id')->from($this->table)->where(array('id_transaksi'=>$id_transaksi))->get()->row();
+        if($result != null){
+            return $result->id;
+        }
+        return null;
+    }
+
     public function store($request) {
         $this->id_transaksi = $request->id_transaksi;
         $this->diskon = $request->diskon;

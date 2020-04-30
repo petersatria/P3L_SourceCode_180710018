@@ -60,7 +60,16 @@ class PembayaranLayanan extends REST_Controller
                 $h->updated_by = $ukuran->created_by;
                 $response = $this->HewanModel->delete($h);
             }
-        }
+		}
+		$t = new dataTransaksi();
+		$t->updated_by = $ukuran->created_by;
+		$t->id = $ukuran->id_transaksi;
+		if($this->TransaksiLayananModel->isDone($ukuran->id_transaksi) != null){
+			$t->status = 'lunas';
+		}else{
+			$t->status = 'belum selesai';
+		}
+		$response = $this->TransaksiLayananModel->pay($t);
 		return $this->returnData($response['msg'], $response['error']);
     }
     
@@ -85,5 +94,20 @@ class data
 class dataHewan
 {
 	public $id;
+	public $updaetd_by;
+}
+
+class dataTransaksi
+{
+	public $id;
+    public $no_transaksi;
+    public $is_member;
+    public $no_telp;
+    public $id_cashier;
+    public $id_CS;
+    public $tgl_transaksi;
+    public $status;
+    public $isDelete;
+	public $created_by;
 	public $updaetd_by;
 }
