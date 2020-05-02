@@ -54,7 +54,7 @@ class PembayaranPenjualanModel extends CI_Model
 
     public function updateTransaksi($updated_at,$updated_by){
         $data = array( 
-            'id_cahsier'      => $updated_by,
+            'id_cashier'      => $updated_by,
             'updated_by'      => $updated_by, 
             'updated_at'      => $updated_at
         );

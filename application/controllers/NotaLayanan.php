@@ -16,8 +16,8 @@ Class NotaLayanan extends REST_Controller{
     function index_get(){
         // $no = $this->post('no_transaksi');
         // $diskon = $this->post('diskon');
-        $no = 'LY-010320-01';
-        $diskon = 20000;
+        $no = $_GET['no'];
+        $diskon = $_GET['diskon'];
         $layanan = $this->get_layanan($no);
 
         $isMember = $layanan[0]->is_member;

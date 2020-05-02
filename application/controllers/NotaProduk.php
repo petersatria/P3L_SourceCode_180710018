@@ -16,8 +16,8 @@ Class NotaProduk extends REST_Controller{
     function index_get(){
         // $no = $this->post('no_transaksi');
         // $diskon = $this->post('diskon');
-        $no = 'PR-210420-08';
-        $diskon = 20000;
+        $no = $_GET['no'];
+        $diskon = $_GET['diskon'];
         $produk = $this->get_produk($no);
 
         $isMember = $produk[0]->is_member;

@@ -62,8 +62,69 @@ class PembayaranPenjualan extends REST_Controller
                 $response = $this->ProdukModel->updateStock($p);
             }
         }
+
+        $cek_stok = $this->searchProdukHabis();
+        if ($cek_stok != "null") {
+            echo $this->notification($cek_stok);
+        }
+
 		return $this->returnData($response['msg'], $response['error']);
     }
+
+    public function searchProdukHabis(){
+		$produk =  $this->ProdukModel->searchProdukHabis();
+		if (empty($produk[2]->nama) == FALSE) {
+			$result = $produk[0]->nama.', '.$produk[1]->nama.' dan '.$produk[2]->nama;
+		}
+		else if (empty($produk[1]->nama) == FALSE) {
+			$result = $produk[0]->nama.' dan '.$produk[1]->nama;
+		}
+		else if (empty($produk[0]->nama) == FALSE){
+			$result = $produk[0]->nama;
+		}
+		else {
+			$result = "null";
+		}
+		return $result;
+    }
+    
+    public function notification($produk) {
+		define('API_ACCESS_KEY','AAAAT0fDIig:APA91bEN2Rma-dQRiRLMFjoH2v7PdNors_FA6kl1czo6wsd1NYTB2sh1F9xmvmq6uQgpfJXPcfVC7MpcrXmxYQHzYgOPZe3vz910T3SNKiq9II_srhZaGe5k7S4cXvUgSVFvfSa_ZDYn');
+		$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+		$token='e6SoLoRjTRCwBfhHwc6G9m:APA91bHmBG5gi-wTXY_xLIr-taA3uJyfU-rH5Tw-l_nRS3PGax6ntxb_CTKUT-SEFIdnMcPp5UosvlFLOMuZw6nf50RdVx2ng8qPtqUhO69YIYaxE0uRLhRWqHwtYPDpcSB7GJjyV-f7';
+
+    	$notification = [
+            'title' =>'Stok Barang Menipis',
+            'body' => $produk
+        ];
+        $extraNotificationData = ["message" => $notification,"moredata" =>'dd'];
+
+        $fcmNotification = [
+            //'registration_ids' => $tokenList, //multple token array
+            'to' => $token, //single token
+            'notification' => $notification,
+			'data' => $extraNotificationData,
+        ];
+
+        $headers = [
+			'Content-Type: application/json',
+            'Authorization: key=' . API_ACCESS_KEY
+        ];
+
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+
+        return $result;
+	}
     
 	public function returnData($msg, $error)
 	{
