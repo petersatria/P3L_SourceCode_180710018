@@ -134,9 +134,9 @@ class TransaksiPenjualanModel extends CI_Model
         $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
-            'status'      => 'lunas',
+            'status' => 'lunas',
             'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'updated_at' => $this->updated_at
         );
         if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
             return [

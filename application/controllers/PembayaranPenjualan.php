@@ -16,6 +16,7 @@ class PembayaranPenjualan extends REST_Controller
 		$this->load->model('PegawaiModel');
         $this->load->model('ProdukModel');
         $this->load->model('PembayaranPenjualanModel');
+        $this->load->model('TransaksiPenjualanModel');
 		$this->load->library('form_validation');
 	}
 
@@ -61,14 +62,23 @@ class PembayaranPenjualan extends REST_Controller
                 $p->updated_by = $ukuran->created_by;
                 $response = $this->ProdukModel->updateStock($p);
             }
+            $ukuran = new data();
+            $ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
+            $ukuran->id = $this->post('id_transaksi');
+            $response = $this->TransaksiPenjualanModel->pay($ukuran);
         }
-
-        $cek_stok = $this->searchProdukHabis();
-        if ($cek_stok != "null") {
-            echo $this->notification($cek_stok);
-        }
+        
+        // jangan dipake ya, nanti server firebase nya ga bisa karena kebanyakan push
+        // $cek_stok = $this->searchProdukHabis();
+        // if ($cek_stok != "null") {
+        //     echo $this->notification($cek_stok);
+        // }
 
 		return $this->returnData($response['msg'], $response['error']);
+    }
+
+    public function cekStok_get(){
+        return $this->returnData($this->searchProdukHabis(),false);
     }
 
     public function searchProdukHabis(){
@@ -97,13 +107,39 @@ class PembayaranPenjualan extends REST_Controller
             'title' =>'Stok Barang Menipis',
             'body' => $produk
         ];
-        $extraNotificationData = ["message" => $notification,"moredata" =>'dd'];
+        $extraNotificationData = [
+            "message" => $notification,
+            "moredata" =>'dd'
+        ];
+
+        $android = [
+            "priority" => 'high'
+        ];
+        
+        $apns_priority = [
+            "apns-priority" => '10'
+        ];
+
+        $apns = [
+            "headers" => $apns_priority
+        ];
+
+        $urgency = [
+            "Urgency" => 'high'
+        ];
+
+        $webpush = [
+            "headers" => $urgency
+        ];
 
         $fcmNotification = [
             //'registration_ids' => $tokenList, //multple token array
             'to' => $token, //single token
             'notification' => $notification,
-			'data' => $extraNotificationData,
+            'data' => $extraNotificationData,
+            'android' => $android,
+            'apns' => $apns,
+            'webpush' => $webpush
         ];
 
         $headers = [
@@ -123,7 +159,7 @@ class PembayaranPenjualan extends REST_Controller
         curl_close($ch);
 
 
-        return $result;
+        echo $result;
 	}
     
 	public function returnData($msg, $error)

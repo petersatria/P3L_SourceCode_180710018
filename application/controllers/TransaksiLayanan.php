@@ -186,7 +186,31 @@ class TransaksiLayanan extends REST_Controller
 			$ukuran->status = 'belum lunas';
 		}
 		$response = $this->TransaksiLayananModel->done($ukuran);
+
 		return $this->returnData($response['msg'], $response['error']);
+	}
+
+	public function sms($layanan) {
+		function SendAPI_SMS($url){
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response  = curl_exec($ch);
+			curl_close($ch);
+			return $response;
+		}
+		
+		$email_api    = urlencode("yosapat.nababan@yahoo.co.id");
+		$passkey_api  = urlencode("Hm123123");
+		$no_hp_tujuan = urlencode("082178156402");
+		$isi_pesan    = urlencode("Layanan ".$layanan." Anda Sudah Selesai");
+		
+		$url          = "https://reguler.medansms.co.id/sms_api.php?action=kirim_sms&email=".$email_api."&passkey=".$passkey_api."&no_tujuan=".$no_hp_tujuan."&pesan=".$isi_pesan."&json=1";
+		$result       = SendAPI_SMS($url);
+		echo $result;
 	}
 
 	public function pay_post($id=null){
