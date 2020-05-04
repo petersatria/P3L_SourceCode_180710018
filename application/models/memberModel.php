@@ -134,9 +134,9 @@ class MemberModel extends CI_Model
     }
 
     public function getIdMemberByTelp($no_telp){
-        $request = $this->db->select('id')->from($this->table)->like('no_telp',$no_telp)->get()->row();
+        $request = $this->db->select('id')->from($this->table)->where(array('no_telp'=>$no_telp))->get()->row();
         if($request != null){
-            return $request->id;
+            return $request;
         }
         return null;
     }
