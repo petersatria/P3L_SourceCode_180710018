@@ -140,7 +140,7 @@ class ProdukModel extends CI_Model
 
     public function updateStock($request){
         $this->id = $request->id;
-        $this->jmlh = $request->jumlah;
+        $this->jmlh = (int)$request->jmlh;
         $this->updated_by = $request->updated_by;
         $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 

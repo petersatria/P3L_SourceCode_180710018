@@ -51,6 +51,35 @@ class Produk extends REST_Controller
 		
 	}
 
+	public function stock_post($id = null){
+		if($id == null){
+			return $this->returnData('Parameter Id Tidak Ditemukan', true);
+		}
+		$validation = $this->form_validation;
+		$rule = [
+			[
+				'field' => 'jmlh',
+				'label' => 'jmlh',
+				'rules' => 'required'
+			],
+			[
+				'field' => 'updated_by',
+				'label' => 'updated_by',
+				'rules' => 'required'
+			]
+		];
+		$validation->set_rules($rule);
+		if (!$validation->run()) {
+			return $this->returnData($this->form_validation->error_array(), true);
+		}
+		$data = new data();
+		$data->id = $id;
+		$data->jmlh = (int)$this->post('jmlh') + (int)$this->ProdukModel->getJumlahProduk($id);
+		$data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
+		$response = $this->ProdukModel->updateStock($data);
+		return $this->returnData($response['msg'], $response['error']);
+	}
+
 	public function index_post($id = null)
 	{
 		$validation = $this->form_validation;
