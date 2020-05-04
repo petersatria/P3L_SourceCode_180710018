@@ -89,7 +89,7 @@ class TransaksiLayanan extends REST_Controller
 	{
 		$validation = $this->form_validation;
 		$rule = $this->TransaksiLayananModel->rules();
-		if($id = null){
+		if($id == null){
 			array_push(
 				$rule,
 				[
