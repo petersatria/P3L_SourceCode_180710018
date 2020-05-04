@@ -58,7 +58,7 @@ class PembayaranPenjualan extends REST_Controller
                 $jmlh = $this->ProdukModel->getJumlahProduk($r->id_produk);
                 $p = new dataProduk();
                 $p->id = $r->id_produk;
-                $p->jumlah = (int)$jmlh - (int)$r->jumlah;
+                $p->jmlh = (int)$jmlh - (int)$r->jumlah;
                 $p->updated_by = $ukuran->created_by;
                 $response = $this->ProdukModel->updateStock($p);
             }
@@ -183,6 +183,6 @@ class data
 class dataProduk
 {
     public $id;
-    public $jumlah;
+    public $jmlh;
 	public $updaetd_by;
 }
