@@ -114,11 +114,12 @@ class TransaksiPenjualan extends REST_Controller
 				];
 			}
 		}else{
+			$ukuran->id = $id;
 			$ukuran->is_member = $this->post('is_member');
 			$ukuran->no_telp = $this->post('no_telp');
 			$ukuran->id_CS = $this->PegawaiModel->getIdPegawai($this->post('id_CS'));
 			$ukuran->status = 'belum lunas';
-			$ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+			$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
 			if($ukuran->is_member == '0' && $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
 				$ukuran->is_member = '1';
 			}

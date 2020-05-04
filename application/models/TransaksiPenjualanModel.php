@@ -51,7 +51,7 @@ class TransaksiPenjualanModel extends CI_Model
     }
 
     public function search($request){
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,IFNULL(sum(dt.harga),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,tp.is_member,IFNULL(sum(dt.harga),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
     }
     
     public function searchByStringAdmin($request){

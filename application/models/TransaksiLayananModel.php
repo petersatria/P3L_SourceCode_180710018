@@ -55,7 +55,7 @@ class TransaksiLayananModel extends CI_Model
     }
 
     public function searchForCS($request){
-        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,IFNULL(sum(dt.harga),0) as total, 1 as isTransaksiLayanan, tl.status, if((ifnull(p.id,0) = 0) ,0, 1) AS isPayed')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi','left')->join('pembayaran_layanan p','tl.id=p.id_transaksi','left')->like('status','belum Selesai')->group_by('tl.id')->where(array('tl.id'=>$request))->get()->row();
+        return $this->db->select('tl.id,tl.no_transaksi,tl.no_telp,tl.is_member,IFNULL(sum(dt.harga),0) as total, 1 as isTransaksiLayanan, tl.status, if((ifnull(p.id,0) = 0) ,0, 1) AS isPayed')->from('transaksi_layanan tl')->join('detil_transaksi_layanan dt','tl.id = dt.id_transaksi','left')->join('pembayaran_layanan p','tl.id=p.id_transaksi','left')->like('status','belum Selesai')->group_by('tl.id')->where(array('tl.id'=>$request))->get()->row();
     }
 
     public function searchForCashier($request){
@@ -117,7 +117,7 @@ class TransaksiLayananModel extends CI_Model
         $data = array( 
             'no_telp'      => $this->no_telp,
             'is_member'      => $this->is_member,
-            'status'      => 'belum lunas',
+            'status'      => 'belum selesai',
             'updated_by' => $this->updated_by, 
             'updated_at'       => $this->updated_at
         );
