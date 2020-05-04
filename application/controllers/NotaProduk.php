@@ -26,7 +26,7 @@ Class NotaProduk extends REST_Controller{
             $member_nama = $member[0]->nama;
         }
         else{
-            $member_nama = '-';
+            $member_nama = 'Guest';
             $member_telp = '-';
         }
             
