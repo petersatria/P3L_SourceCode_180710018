@@ -141,7 +141,7 @@ class TransaksiLayanan extends REST_Controller
 					$ukuran->is_member = '1';
 				}
 				if($ukuran->is_member == '0' || $this->MemberModel->getIdMemberByTelp($ukuran->no_telp) != null){
-					$response = $this->TransaksiLayananModel->store($ukuran);
+					$response = $this->TransaksiLayananModel->update($ukuran);
 				}else{
 					$response = [
 						'msg' => 'Member dengan Nomor Telepon tidak tersedia',
