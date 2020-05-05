@@ -75,7 +75,7 @@ class DetilTransaksiLayanan extends REST_Controller
             $hewan->nama = $this->post('nama_hewan');
             $hewan->id_jenis_hewan = $this->post('id_jenis_hewan');
             $hewan->tanggal_lahir = $this->post('tanggal_lahir');
-            $hewan->updated_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+            $hewan->updated_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
             $response = $this->HewanModel->update($hewan);
             if(!$response['error']){
                 $ukuran = new data();
@@ -85,7 +85,7 @@ class DetilTransaksiLayanan extends REST_Controller
                 $ukuran->id_hewan = $response['msg'];
                 $ukuran->harga = $this->post('harga');
                 $ukuran->jumlah = $this->post('jumlah');
-                $ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+                $ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
                 $response = $this->DetilTransaksiLayananModel->update($ukuran);
             }
 		}else{
@@ -93,7 +93,7 @@ class DetilTransaksiLayanan extends REST_Controller
             $hewan->nama = $this->post('nama_hewan');
             $hewan->id_jenis_hewan = $this->post('id_jenis_hewan');
             $hewan->tanggal_lahir = $this->post('tanggal_lahir');
-            $hewan->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+            $hewan->created_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
             $response = $this->HewanModel->store($hewan);
             if(!$response['error']){
                 $ukuran = new data();
@@ -102,7 +102,7 @@ class DetilTransaksiLayanan extends REST_Controller
                 $ukuran->id_hewan = $response['msg'];
                 $ukuran->harga = $this->post('harga');
                 $ukuran->jumlah = $this->post('jumlah');
-                $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+                $ukuran->created_by = $this->PegawaiModel->getIdPegawai($this->post('pegawai'));
                 $response = $this->DetilTransaksiLayananModel->store($ukuran);
             }
 		}
