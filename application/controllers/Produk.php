@@ -42,6 +42,16 @@ class Produk extends REST_Controller
 		return $this->returnData($response, false);
 	}
 
+	public function produkHabis_get($nama = null){
+		$response = $this->ProdukModel->searchJumlahProdukHabis($nama);
+		return $this->returnData($response, false);
+	}
+
+	public function produkHabisNama_get($nama = null){
+		$response = $this->ProdukModel->searchNamaProdukHabis($nama);
+		return $this->returnData($response, false);
+	}
+
 	public function stock_get($id = null){
 		if($id == null){
 			return $this->returnData('Parameter Id Tidak Ditemukan', true);

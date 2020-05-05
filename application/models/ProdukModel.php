@@ -81,6 +81,14 @@ class ProdukModel extends CI_Model
         return $query = $this->db->query('SELECT nama FROM produk WHERE jmlh_min >= jmlh')->result();
     }
 
+    public function searchJumlahProdukHabis(){
+        return $query = $this->db->query('SELECT nama as jumlah FROM produk WHERE jmlh_min >= jmlh')->row()->jumlah;
+    }
+
+    public function searchNamaProdukHabis(){
+        return $query = $this->db->query('SELECT id, nama FROM produk WHERE jmlh_min >= jmlh')->result();
+    }
+
     public function store($request) {
         $this->nama = $request->nama;
         $this->id_kategori_produk = $request->id_kategori_produk;
