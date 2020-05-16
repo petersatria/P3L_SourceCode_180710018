@@ -39,27 +39,27 @@ class TransaksiPenjualanModel extends CI_Model
 
     
     public function getForAdmin() { 
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->get()->result();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga*dt.jumlah),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->get()->result();
     }
 
     public function get() { 
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,IFNULL(sum(dt.harga),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->get()->result();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,IFNULL(sum(dt.harga*dt.jumlah),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->get()->result();
     }
 
     public function searchForAdmin($request){
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga*dt.jumlah),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
     }
 
     public function search($request){
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,tp.is_member,IFNULL(sum(dt.harga),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,tp.is_member,IFNULL(sum(dt.harga*dt.jumlah),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_by('tp.id')->where(array('tp.id'=>$request))->get()->row();
     }
     
     public function searchByStringAdmin($request){
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp, id_CS, id_cashier, status, IFNULL(sum(dt.harga*dt.jumlah),0) as total')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->group_by('tp.id')->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->get()->result();
     }
 
     public function searchByString($request){
-        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,IFNULL(sum(dt.harga),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_start()->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->group_end()->group_by('tp.id')->get()->result();
+        return $this->db->select('tp.id,tp.no_transaksi,tp.no_telp,IFNULL(sum(dt.harga*dt.jumlah),0) as total, 0 as isTransaksiLayanan, status, 0 as isPayed')->from('transaksi_penjualan tp')->join('detil_transaksi_penjualan dt','tp.id = dt.id_transaksi','left')->like('status','belum lunas')->group_start()->like('no_transaksi',$request)->or_like('no_transaksi',$request,'before')->or_like('no_transaksi',$request,'after')->group_end()->group_by('tp.id')->get()->result();
     }
 
     public function store($request) {
