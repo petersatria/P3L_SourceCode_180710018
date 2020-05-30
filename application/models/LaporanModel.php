@@ -80,4 +80,14 @@ class LaporanModel extends CI_Model{
 
         return $this->db->query("SELECT produk.nama AS produk, SUM(detil_pemesanan.jumlah*produk.harga) AS total FROM detil_pemesanan JOIN produk ON produk.id = detil_pemesanan.id_produk JOIN pemesanan ON pemesanan.id = detil_pemesanan.id_pemesanan WHERE pemesanan.tgl_pemesanan BETWEEN '$min_bulan' AND '$max_bulan' AND (pemesanan.status = 'tercerak' OR pemesanan.status = 'diterima') GROUP BY produk")->result();
     }
+
+    public function detail_pemesanan($no) {
+        $query = $this->db->query("SELECT produk.nama, produk.satuan, detil_pemesanan.jumlah FROM detil_pemesanan JOIN produk ON detil_pemesanan.id_produk = produk.id JOIN pemesanan ON detil_pemesanan.id_pemesanan = pemesanan.id WHERE pemesanan.no_PO = '$no'");
+        return $query->result();
+    }
+
+    public function pemesanan($no) {
+        $query = $this->db->query("SELECT pemesanan.tgl_pemesanan, supplier.nama, supplier.kota, supplier.no_telp FROM pemesanan JOIN supplier ON pemesanan.id_supplier = supplier.id WHERE pemesanan.no_PO = '$no'");
+        return $query->result();
+    }
 }

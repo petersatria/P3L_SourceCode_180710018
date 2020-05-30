@@ -390,6 +390,75 @@ Class Laporan extends REST_Controller{
         $pdf->Output();
     }
 
+    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/SuratPemesanan?no=PO-2020-04-24-06
+    public function SuratPemesanan_get(){
+        $no = $_GET['no'];
+        $pemesanan = $produk = $this->LaporanModel->pemesanan($no);
+
+        $pdf = new FPDF('P','mm','A4');
+        $pdf->AddPage();
+
+        $image1 = "./resource/header.png";
+        $pdf->SetFont('Arial','B',24);
+
+        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
+        
+        $pdf->Cell(10,53,'',0,1);
+
+        $pdf->SetFont('Arial','B',15);
+        $pdf->Cell(190,6,'Surat Pemesanan',0,1,'C');
+
+        $pdf->Cell(10,6,'',0,1);
+        $pdf->SetFont('Arial','B',11);
+        $pdf->Cell(190,10,'No : '.$no, 0, 1, 'R');
+
+        $test = "./resource/test.png";
+
+        $tahun = substr($pemesanan[0]->tgl_pemesanan,0,4);
+        $bulan_convert = (int)substr($pemesanan[0]->tgl_pemesanan,5,2);
+        $bulan = $this->get_bulan($bulan_convert);
+        $hari = substr($pemesanan[0]->tgl_pemesanan,8,9);
+        $pdf->Cell(190,10,'Tanggal : '.$hari.' '.$bulan.' '.$tahun,0,1,'R');
+
+        $pdf->Cell( 11, 1, $pdf->Image($test, 10, 94, 57), 0, 1, 'L', false );
+
+        $pdf->SetFont('Arial','',11);
+        $pdf->Cell(190,6,' Kepada Yth: ',0,1, 'L');
+        $pdf->Cell(190,6,' '.$pemesanan[0]->nama,0,1, 'L');
+        $pdf->Cell(190,6,' '.$pemesanan[0]->kota,0,1, 'L');
+        $pdf->Cell(190,6,' '.$pemesanan[0]->no_telp,0,1, 'L');
+
+        $pdf->Cell(10,5,'',0,1);
+
+        $pdf->SetFont('Arial','',11, 'C');
+
+        $pdf->Cell(190,10,'Mohon untuk disediakan produk-produk berikut ini :', 0, 1, 'L');
+        
+        $pdf->SetFont('Arial','B',11);
+        $pdf->Cell(10,10,' No',1,0, 'L');
+        $pdf->Cell(80,10,' Nama Produk',1,0, 'L');
+        $pdf->Cell(50,10,' Satuan',1,0, 'L');
+        $pdf->Cell(50,10,' Jumlah',1,1, 'L');
+
+        $detil = $this->LaporanModel->detail_pemesanan($no);
+        $i = 1;
+        $pdf->SetFont('Arial','',11);
+        foreach ($detil as $key => $rows){
+            
+            $pdf->Cell(10,10,$i,1,0,'C');
+            $pdf->Cell(80,10," ".$rows->nama,1,0);
+            $pdf->Cell(50,10," ".$rows->satuan,1,0);
+            $pdf->Cell(50,10," ".$rows->jumlah,1,1);
+            
+            $i++;
+        }
+        $pdf->Cell(110,20,"",0,1);
+        $pdf->SetFont('Arial','',11);
+        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
+
+        $pdf->Output();
+    }
+
     public function index_post() {
         $tahun = 2020;
         $bulan = 3;
