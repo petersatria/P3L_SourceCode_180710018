@@ -412,7 +412,7 @@ Class Laporan extends REST_Controller{
         $pdf->SetFont('Arial','B',11);
         $pdf->Cell(190,10,'No : '.$no, 0, 1, 'R');
 
-        $test = "./resource/test.png";
+        
 
         $tahun = substr($pemesanan[0]->tgl_pemesanan,0,4);
         $bulan_convert = (int)substr($pemesanan[0]->tgl_pemesanan,5,2);
@@ -420,7 +420,7 @@ Class Laporan extends REST_Controller{
         $hari = substr($pemesanan[0]->tgl_pemesanan,8,9);
         $pdf->Cell(190,10,'Tanggal : '.$hari.' '.$bulan.' '.$tahun,0,1,'R');
 
-        $pdf->Cell( 11, 1, $pdf->Image($test, 10, 94, 57), 0, 1, 'L', false );
+        
 
         $pdf->SetFont('Arial','',11);
         $pdf->Cell(190,6,' Kepada Yth: ',0,1, 'L');
