@@ -69,7 +69,6 @@ class DetilPemesanan extends REST_Controller
 		if (!$validation->run()) {
 			return $this->returnData($this->form_validation->error_array(), true);
         }
-        $id = $this->DetilPemesananModel->getId($this->post('id_pemesanan'),$this->post('id_produk'));
 		if($id != null){
 			$ukuran = new data();
 			$ukuran->id = $id;
