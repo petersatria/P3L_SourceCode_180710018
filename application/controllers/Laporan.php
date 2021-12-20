@@ -9,518 +9,284 @@ Class Laporan extends REST_Controller{
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-        $this->load->model('LaporanModel');
         $this->load->library('pdf');
+        $this->load->model('TransaksiModel');
+        $this->load->model('CustomerModel');
+        $this->load->model('PenanggungJawabModel');
+        $this->load->model('DetilTransaksiPerawatanModel');
+        $this->load->model('DetilTransaksiProdukModel');
+        $this->load->model('PerawatanModel');
+        $this->load->model('ProdukModel');
     }
 
     //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/LayananTerlaris?tahun=2020
-    public function LayananTerlaris_get(){
+    public function customerByYear_get(){
         $tahun = $_GET['tahun'];
 
-        $pdf = new FPDF('P','mm','A4');
-        $pdf->AddPage();
-
-        $image1 = "./resource/header.png";
-        $pdf->SetFont('Arial','B',24);
-
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
-        
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Jasa Layanan Terlaris',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,6,'Tahun :',0,0);
-        $pdf->Cell(20,6,$tahun,0,1);
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,'No',1,0, 'C');
-        $pdf->Cell(30,10,'Bulan',1,0, 'C');
-        $pdf->Cell(110,10,'Nama Layanan',1,0, 'C');
-        $pdf->Cell(40,10,'Jumlah Penjualan',1,1, 'C');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
-        for ($i = 1; $i <=12; $i++){
-            $data = $this->LaporanModel->terlaris($tahun,$i,'L');
-
-            $pdf->Cell(10,10,"1",1,0,'C');
-            $pdf->Cell(30,10," ".$this->get_bulan($i),1,0);
-
-            if ($data == null) {
-                $pdf->Cell(110,10," -",1,0);
-                $pdf->Cell(40,10," -",1,1,'C');
-            }
-            else {
-                $pdf->Cell(110,10," ".$data[0]->nama,1,0);
-                $pdf->Cell(40,10," ".$data[0]->jumlah,1,1,'C');
-            }
-        }
-
-        $pdf->Cell(110,15,"",0,1);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
-
-        $pdf->Output();
-    }
-
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/ProdukTerlaris?tahun=2020
-    public function ProdukTerlaris_get(){
-        $tahun = $_GET['tahun'];
-
-        $pdf = new FPDF('P','mm','A4');
-        $pdf->AddPage();
-
-        $image1 = "./resource/header.png";
-        $pdf->SetFont('Arial','B',24);
-
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
-        
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Produk Terlaris',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,6,'Tahun :',0,0);
-        $pdf->Cell(20,6,$tahun,0,1);
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,'No',1,0, 'C');
-        $pdf->Cell(30,10,'Bulan',1,0, 'C');
-        $pdf->Cell(110,10,'Nama Produk',1,0, 'C');
-        $pdf->Cell(40,10,'Jumlah Penjualan',1,1, 'C');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
-        for ($i = 1; $i <=12; $i++){
-            $data = $this->LaporanModel->terlaris($tahun,$i,'P');
-
-            $pdf->Cell(10,10,"1",1,0,'C');
-            $pdf->Cell(30,10," ".$this->get_bulan($i),1,0);
-
-            if ($data == null) {
-                $pdf->Cell(110,10," -",1,0);
-                $pdf->Cell(40,10," -",1,1,'C');
-            }
-            else {
-                $pdf->Cell(110,10," ".$data[0]->nama,1,0);
-                $pdf->Cell(40,10," ".$data[0]->jumlah,1,1,'C');
-            }
-        }
-
-        $pdf->Cell(110,15,"",0,1);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
-
-        $pdf->Output();
-    }
-
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/PendapatanTahunan?tahun=2020
-    public function PendapatanTahunan_get(){
-        $tahun = $_GET['tahun'];
-
-        $pdf = new FPDF('P','mm','A4');
-        $pdf->AddPage();
-
-        $image1 = "./resource/header.png";
-        $pdf->SetFont('Arial','B',24);
-
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
-        
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Pendapatan Tahunan',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,6,'Tahun :',0,0);
-        $pdf->Cell(20,6,$tahun,0,1);
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(30,10,' Bulan',1,0, 'L');
-        $pdf->Cell(50,10,' Jasa Layanan',1,0, 'L');
-        $pdf->Cell(50,10,' Produk',1,0, 'L');
-        $pdf->Cell(50,10,' Total',1,1, 'L');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
+        $bulans = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        $bulansInd = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+        $response = $this->CustomerModel->getRegisteredByYear($tahun);
+        $tgl = date('d M Y');
         $total = 0;
-
-        for ($i = 1; $i <=12; $i++){
-            $data = $this->LaporanModel->pendapatanTahunan($tahun,$i);
-
-            $pdf->Cell(10,10,"1",1,0,'C');
-            $pdf->Cell(30,10," ".$this->get_bulan($i),1,0);
-
-            if ($data[0]->layanan == 0) {
-                $pdf->Cell(50,10," Rp 0,00",1,0);
-            }
-            else {
-                $pdf->Cell(50,10," ".$this->rupiah($data[0]->layanan),1,0);
-            }
-
-            if ($data[0]->produk == 0) {
-                $pdf->Cell(50,10," Rp 0,00",1,0);
-            }
-            else {
-                $pdf->Cell(50,10," ".$this->rupiah($data[0]->produk),1,0);
-            }
-            
-            $pdf->Cell(50,10," ".$this->rupiah($data[0]->produk + $data[0]->layanan),1,1);
-            
-            $total =  $total + $data[0]->produk + $data[0]->layanan;
-        }
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,15,"Total  ".$this->rupiah($total),0,1,'R');
-        $pdf->Cell(110,10,"",0,1);
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
-
-        $pdf->Output();
-    }
-
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/PendapatanBulanan?tahun=2020&bulan=3
-    public function PendapatanBulanan_get(){
-        $tahun = $_GET['tahun'];
-        $bulan = $_GET['bulan'];
+        
 
         $pdf = new FPDF('P','mm','A4');
         $pdf->AddPage();
+        $pdf->SetMargins(20,5,20);
 
         $image1 = "./resource/header.png";
         $pdf->SetFont('Arial','B',24);
 
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
+        $pdf->Cell(180, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 1, 'C', false );
         
-        $pdf->Cell(10,53,'',0,1);
+        $pdf->Cell(10,10,'',0,1);
+
+        $pdf->SetFont('Arial','',15);
+
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->Cell(170,0.8,'',0,1,'R',true);
+        $pdf->SetFont('Arial','B',15);
+        $pdf->cell(170,12,'LAPORAN CUSTOMER BARU',0,1,'C');
+        $pdf->SetFont('Arial','',15);
+        $pdf->cell(30,5,'Tahun : ',0,0);
+        $pdf->cell(30,5,$tahun,0,1);
+        $pdf->cell(30,10,'',0,1);
 
         $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Pendapatan Bulanan',0,1,'C');
+        $pdf->cell(20,10,'No',1,0,'C');
+        $pdf->cell(40,10,'Bulan',1,0,'C');
+        $pdf->cell(35,10,'Pria',1,0,'C');
+        $pdf->cell(35,10,'Wanita',1,0,'C');
+        $pdf->cell(40,10,'Jumlah',1,1,'C');
 
-        $pdf->Cell(10,6,'',0,1);
+        $pdf->SetFont('Arial','',15);
 
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,6,'Bulan :',0,0);
-        $pdf->Cell(20,6,$this->get_bulan($bulan),0,1);
-        $pdf->Cell(14,6,'Tahun :',0,0);
-        $pdf->Cell(20,6,$tahun,0,1);
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(90,10,' Nama Jasa Layanan',1,0, 'L');
-        $pdf->Cell(90,10,' Harga',1,1, 'L');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
-        $total = 0;
-        $layanan = $this->LaporanModel->pendapatanBulanan($tahun,$bulan,'L');
-        foreach ($layanan as $key => $rows){
-            $pdf->Cell(10,10,$key+1,1,0, 'C');
-            $pdf->Cell(90,10," ".$rows->layanan,1,0);
-            $pdf->Cell(90,10," ".$this->rupiah($rows->harga),1,1);
-
-            $total = $total + $rows->harga;
+        for ($i=0; $i < count($bulans); $i++) { 
+            $temp = 0;
+            $pdf->cell(20,10,$i+1,1,0,'C');
+            $pdf->cell(40,10,' '.$bulansInd[$i],1,0,'L');
+            foreach ($response as $key => $r) {
+                if ($r->bulan == $bulans[$i] && $r->jenis_kelamin == 'L') {
+                    $pdf->cell(35,10,$r->total.' ',1,0,'R');
+                    $temp = $temp + $r->total;
+                }
+            }
+            foreach ($response as $key => $r) {
+                if ($r->bulan == $bulans[$i] && $r->jenis_kelamin == 'P') {
+                    $pdf->cell(35,10,$r->total.' ',1,0,'R');
+                    $temp = $temp + $r->total;
+                }
+            }
+            $pdf->cell(40,10,$temp.' ',1,1,'R');
+            $total = $total + $temp;
         }
 
-        $pdf->SetFont('Arial','B',13);
-        $pdf->Cell(190,15,"Total  ".$this->rupiah($total),0,1,'R');
-        
-        $pdf->Cell(110,10,"",0,1);
+        $pdf->SetFont('Arial','B',15);
+        $pdf->cell(130,15,'Total',0,0,'R');
+        $pdf->cell(40,15,$total,0,1,'R');
+        $pdf->cell(170,35,'',0,1);
 
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(90,10,' Nama Produk',1,0, 'L');
-        $pdf->Cell(90,10,' Harga',1,1, 'L');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
-        $total = 0;
-        $produk = $this->LaporanModel->pendapatanBulanan($tahun,$bulan,'P');
-        foreach ($produk as $key => $rows){
-            $pdf->Cell(10,10,$key+1,1,0, 'C');
-            $pdf->Cell(90,10," ".$rows->produk,1,0);
-            $pdf->Cell(90,10," ".$this->rupiah($rows->harga),1,1);
-
-            $total = $total + $rows->harga;
-        }
-        $pdf->SetFont('Arial','B',13);
-        $pdf->Cell(190,15,"Total  ".$this->rupiah($total),0,1,'R');
-
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(10,6,'',0,1);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
+        $pdf->SetFont('Arial','',12);
+        $pdf->cell(170,5,'dicetak tanggal '.date('d ').$bulansInd[date('m')-1].date(' Y'),0,1,'R');
 
         $pdf->Output();
     }
 
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/PengadaanProdukTahunan?tahun=2020
-    public function PengadaanProdukTahunan_get(){
+    public function pendapatanByYear_get(){
         $tahun = $_GET['tahun'];
 
-        $pdf = new FPDF('P','mm','A4');
-        $pdf->AddPage();
-
-        $image1 = "./resource/header.png";
-        $pdf->SetFont('Arial','B',24);
-
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
-        
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Pengadaan Produk Tahunan',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,6,'Tahun :',0,0);
-        $pdf->Cell(20,6,$tahun,0,1);
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(50,10,' Bulan',1,0, 'L');
-        $pdf->Cell(130,10,' Jumlah Pengeluaran',1,1, 'L');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
+        $bulansInd = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+        $response = $this->TransaksiModel->getPendapatanByYear($tahun);
+        $tgl = date('d M Y');
         $total = 0;
+        
 
-        for ($i = 1; $i <=12; $i++){
-            $data = $this->LaporanModel->pengadaanProdukTahunan($tahun,$i);
-
-            $pdf->Cell(10,10,"1",1,0,'C');
-            $pdf->Cell(50,10," ".$this->get_bulan($i),1,0);
-
-            if ($data[0]->total == 0) {
-                $pdf->Cell(130,10," Rp 0,00",1,1);
-            }
-            else {
-                $pdf->Cell(130,10," ".$this->rupiah($data[0]->total),1,1);
-            }
-            
-            $total =  $total + $data[0]->total;
-        }
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,15,"Total  ".$this->rupiah($total),0,1,'R');
-        $pdf->Cell(110,10,"",0,1);
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
-
-        $pdf->Output();
-    }
-
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/PengadaanProdukBulanan?tahun=2020&bulan=3
-    public function PengadaanProdukBulanan_get(){
-        $tahun = $_GET['tahun'];
-        $bulan = $_GET['bulan'];
-
-        $pdf = new FPDF('P','mm','A4');
+        $pdf = new FPDF('L','mm','A4');
         $pdf->AddPage();
+        $pdf->SetMargins(30,5,30);
 
         $image1 = "./resource/header.png";
         $pdf->SetFont('Arial','B',24);
 
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
+        $pdf->Cell(237, 25, $pdf->Image($image1, 50, $pdf->GetY(), 200,30), 0, 1, 'C', false );
         
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Laporan Pengadaan Produk Tahunan',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-
-        $pdf->SetFont('Arial','',11, 'C');
-        $pdf->Cell(14,10,'Bulan :',0,0);
-        $pdf->Cell(20,10,$this->get_bulan($bulan),0,1);
-        $pdf->Cell(14,10,'Tahun :',0,0);
-        $pdf->Cell(20,10,$tahun,0,1);
-
-        $pdf->Cell(10,3,'',0,1);
-
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(90,10,' Nama Produk',1,0, 'L');
-        $pdf->Cell(90,10,' Jumlah Pengeluaran',1,1, 'L');
-
-        $pdf->SetFont('Arial','',11, 'C');
-
-        $total = 0;
-        $produk = $this->LaporanModel->pengadaanProdukBulanan($tahun,$bulan);
-        foreach ($produk as $key => $rows){
-            $pdf->Cell(10,10,"1",1,0,'C');
-            $pdf->Cell(90,10," ".$rows->produk,1,0);
-
-            if ($rows->total == 0) {
-                $pdf->Cell(90,10," Rp 0,00",1,1);
-            }
-            else {
-                $pdf->Cell(90,10," ".$this->rupiah($rows->total),1,1);
-            }
-            
-            $total =  $total + $rows->total;
-        }
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,15,"Total  ".$this->rupiah($total),0,1,'R');
-        $pdf->Cell(110,10,"",0,1);
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
-
-        $pdf->Output();
-    }
-
-    //http://localhost/rest_api-kouvee-pet-shop/index.php/Laporan/SuratPemesanan?no=PO-2020-04-24-06
-    public function SuratPemesanan_get(){
-        $no = $_GET['no'];
-        $pemesanan = $produk = $this->LaporanModel->pemesanan($no);
-
-        $pdf = new FPDF('P','mm','A4');
-        $pdf->AddPage();
-
-        $image1 = "./resource/header.png";
-        $pdf->SetFont('Arial','B',24);
-
-        $pdf->Cell( 200, 40, $pdf->Image($image1, $pdf->GetX(), $pdf->GetY(), 190), 0, 0, 'L', false );
-        
-        $pdf->Cell(10,53,'',0,1);
-
-        $pdf->SetFont('Arial','B',15);
-        $pdf->Cell(190,6,'Surat Pemesanan',0,1,'C');
-
-        $pdf->Cell(10,6,'',0,1);
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(190,10,'No : '.$no, 0, 1, 'R');
-
-        
-
-        $tahun = substr($pemesanan[0]->tgl_pemesanan,0,4);
-        $bulan_convert = (int)substr($pemesanan[0]->tgl_pemesanan,5,2);
-        $bulan = $this->get_bulan($bulan_convert);
-        $hari = substr($pemesanan[0]->tgl_pemesanan,8,9);
-        $pdf->Cell(190,10,'Tanggal : '.$hari.' '.$bulan.' '.$tahun,0,1,'R');
-
-        
-
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(190,6,' Kepada Yth: ',0,1, 'L');
-        $pdf->Cell(190,6,' '.$pemesanan[0]->nama,0,1, 'L');
-        $pdf->Cell(190,6,' '.$pemesanan[0]->kota,0,1, 'L');
-        $pdf->Cell(190,6,' '.$pemesanan[0]->no_telp,0,1, 'L');
-
         $pdf->Cell(10,5,'',0,1);
 
-        $pdf->SetFont('Arial','',11, 'C');
+        $pdf->SetFont('Arial','',15);
 
-        $pdf->Cell(190,10,'Mohon untuk disediakan produk-produk berikut ini :', 0, 1, 'L');
-        
-        $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(10,10,' No',1,0, 'L');
-        $pdf->Cell(80,10,' Nama Produk',1,0, 'L');
-        $pdf->Cell(50,10,' Satuan',1,0, 'L');
-        $pdf->Cell(50,10,' Jumlah',1,1, 'L');
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->Cell(237,0.8,'',0,1,'R',true);
+        $pdf->SetFont('Arial','B',15);
+        $pdf->cell(237,12,'LAPORAN PENDAPATAN',0,1,'C');
+        $pdf->SetFont('Arial','',12);
+        $pdf->cell(20,5,'Tahun : ',0,0);
+        $pdf->cell(30,5,$tahun,0,1);
+        $pdf->cell(30,5,'',0,1);
 
-        $detil = $this->LaporanModel->detail_pemesanan($no);
-        $i = 1;
-        $pdf->SetFont('Arial','',11);
-        foreach ($detil as $key => $rows){
-            
-            $pdf->Cell(10,10,$i,1,0,'C');
-            $pdf->Cell(80,10," ".$rows->nama,1,0);
-            $pdf->Cell(50,10," ".$rows->satuan,1,0);
-            $pdf->Cell(50,10," ".$rows->jumlah,1,1);
-            
-            $i++;
+        $pdf->SetFont('Arial','B',12);
+        $pdf->cell(20,8,'No',1,0,'C');
+        $pdf->cell(47,8,'Bulan',1,0,'C');
+        $pdf->cell(55,8,'Perawatan',1,0,'C');
+        $pdf->cell(55,8,'Produk',1,0,'C');
+        $pdf->cell(60,8,'Total',1,1,'C');
+
+        $pdf->SetFont('Arial','',12);
+
+        for ($i=0; $i < count($bulansInd); $i++) {
+
+            $pdf->cell(20,8,$i+1,1,0,'C');
+            $pdf->cell(47,8,' '.$bulansInd[$i],1,0,'C');
+            $pdf->cell(55,8,$this->toRupiah($response[$i]->total_pendapatan_perawatan).' ',1,0,'R');
+            $pdf->cell(55,8,$this->toRupiah($response[$i]->total_pendatapan_produk).' ',1,0,'R');
+            $pdf->cell(60,8,$this->toRupiah($response[$i]->total_pendapatan_perawatan+$response[$i]->total_pendatapan_produk).' ',1,1,'R');
+
+            $total = $total + $response[$i]->total_pendapatan_perawatan+$response[$i]->total_pendatapan_produk;
         }
-        $pdf->Cell(110,20,"",0,1);
-        $pdf->SetFont('Arial','',11);
-        $pdf->Cell(190,10,"Dicetak tanggal ".date('d')." ".$this->get_bulan(date('n'))." 2020",0,1,'R');
+
+        $pdf->SetFont('Arial','B',12);
+        $pdf->cell(177,8,'Total',0,0,'R');
+        $pdf->cell(60,8,' '.$this->toRupiah($total),1,1,'R');
+        $pdf->cell(170,10,'',0,1);
+
+        $pdf->SetFont('Arial','',10);
+        $pdf->cell(237,5,'dicetak tanggal '.date('d ').$bulansInd[date('m')-1].date(' Y'),0,1,'R');
 
         $pdf->Output();
     }
 
-    public function index_post() {
-        $tahun = 2020;
-        $bulan = 3;
-        return $this->response($this->LaporanModel->pendapatanTahunan(2020,4,'P'));
-    }
+    public function produkLaris_get(){
+        $bulan = $_GET['bulan'];
+        $tahun = $_GET['tahun'];
+        $date=$bulan.'-'.$tahun;
 
-    function rupiah($angka){
-        $hasil_rupiah = "Rp " . number_format($angka,2,',','.');
-        return $hasil_rupiah;
-    }
-
-    public function get_bulan($bulan) {
-        if ($bulan == 1) {
-            return "Januari";
-        }
-
-        else if ($bulan == 2) {
-            return "Febuari";
-        }
-
-        else if ($bulan == 3) {
-            return "Maret";
-        }
-
-        else if ($bulan == 4) {
-            return "April";
-        }
-
-        else if ($bulan == 5) {
-            return "Mei";
-        }
-
-        else if ($bulan == 6) {
-            return "Juni";
-        }
-
-        else if ($bulan == 7) {
-            return "Juli";
-        }
-
-        else if ($bulan == 8) {
-            return "Agustus";
-        }
-
-        else if ($bulan == 9) {
-            return "September";
-        }
-
-        else if ($bulan == 10) {
-            return "Oktober";
-        }
-
-        else if ($bulan == 11) {
-            return "November";
-        }
-
-        else if ($bulan == 12) {
-            return "Desember";
-        }
+        $bulansInd = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+        $response = $this->DetilTransaksiProdukModel->getTotalLaporan($date);
+        $tgl = date('d M Y');
+        $total = 0;
         
-        else {
-            return "ERROR";
-        }   
+
+        $pdf = new FPDF('L','mm','A4');
+        $pdf->AddPage();
+        $pdf->SetMargins(30,5,30);
+
+        $image1 = "./resource/header.png";
+        $pdf->SetFont('Arial','B',24);
+
+        $pdf->Cell(237, 25, $pdf->Image($image1, 50, $pdf->GetY(), 200,30), 0, 1, 'C', false );
+        
+        $pdf->Cell(10,5,'',0,1);
+
+        $pdf->SetFont('Arial','',15);
+
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->Cell(237,0.8,'',0,1,'R',true);
+        $pdf->SetFont('Arial','B',15);
+        $pdf->cell(237,12,'LAPORAN 10 PRODUK PALING LARIS',0,1,'C');
+        $pdf->SetFont('Arial','',12);
+        $pdf->cell(20,5,'Tahun : ',0,0);
+        $pdf->cell(30,5,$tahun,0,1);
+        $pdf->cell(20,8,'Bulan : ',0,0);
+        $pdf->cell(30,8,$bulansInd[$bulan-1],0,1);
+        $pdf->cell(30,5,'',0,1);
+
+        $pdf->SetFont('Arial','B',12);
+        $pdf->cell(20,8,'No',1,0,'C');
+        $pdf->cell(100,8,'Nama Produk',1,0,'C');
+        $pdf->cell(47,8,'Harga',1,0,'C');
+        $pdf->cell(30,8,'Ukuran',1,0,'C');
+        $pdf->cell(40,8,'Jumlah Pembelian',1,1,'C');
+
+        $pdf->SetFont('Arial','',11);
+
+        for ($i=0; $i < count($response); $i++) {
+
+            $pdf->cell(20,8,$i+1,1,0,'C');
+            $pdf->cell(100,8,' '.$response[$i]->nama_prd,1,0,'L');
+            $pdf->cell(47,8,' '.$this->toRupiah($response[$i]->harga_prd),1,0,'R');
+            $pdf->cell(30,8,' '.$response[$i]->ukuran_prd,1,0,'R');
+            $pdf->cell(40,8,' '.$response[$i]->total,1,1,'R');
+        }
+
+        $pdf->cell(170,10,'',0,1);
+
+        $pdf->SetFont('Arial','',10);
+        $pdf->cell(237,5,'dicetak tanggal '.date('d ').$bulansInd[date('m')-1].date(' Y'),0,1,'R');
+
+        $pdf->Output();
     }
+
+    public function perawatanLaris_get(){
+        $bulan = $_GET['bulan'];
+        $tahun = $_GET['tahun'];
+        $date=$bulan.'-'.$tahun;
+
+        $bulansInd = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+        $response = $this->DetilTransaksiPerawatanModel->getTotalLaporan($date);
+        $tgl = date('d M Y');
+        $total = 0;
+        
+
+        $pdf = new FPDF('L','mm','A4');
+        $pdf->AddPage();
+        $pdf->SetMargins(30,5,30);
+
+        $image1 = "./resource/header.png";
+        $pdf->SetFont('Arial','B',24);
+
+        $pdf->Cell(237, 25, $pdf->Image($image1, 50, $pdf->GetY(), 200,30), 0, 1, 'C', false );
+        
+        $pdf->Cell(10,5,'',0,1);
+
+        $pdf->SetFont('Arial','',15);
+
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->Cell(237,0.8,'',0,1,'R',true);
+        $pdf->SetFont('Arial','B',15);
+        $pdf->cell(237,12,'LAPORAN 10 PERAWATAN PALING LARIS',0,1,'C');
+        $pdf->SetFont('Arial','',12);
+        $pdf->cell(20,5,'Tahun : ',0,0);
+        $pdf->cell(30,5,$tahun,0,1);
+        $pdf->cell(20,8,'Bulan : ',0,0);
+        $pdf->cell(30,8,$bulansInd[$bulan-1],0,1);
+        $pdf->cell(30,5,'',0,1);
+
+        $pdf->SetFont('Arial','B',12);
+        $pdf->cell(20,8,'No',1,0,'C');
+        $pdf->cell(130,8,'Nama Perawatan',1,0,'C');
+        $pdf->cell(47,8,'Harga',1,0,'C');
+        $pdf->cell(40,8,'Jumlah Pembelian',1,1,'C');
+
+        $pdf->SetFont('Arial','',11);
+
+        for ($i=0; $i < count($response); $i++) {
+
+            $pdf->cell(20,8,$i+1,1,0,'C');
+            $pdf->cell(130,8,' '.$response[$i]->nama_prw,1,0,'L');
+            $pdf->cell(47,8,' '.$this->toRupiah($response[$i]->harga_prw),1,0,'R');
+            $pdf->cell(40,8,' '.$response[$i]->total,1,1,'R');
+        }
+
+        $pdf->cell(170,10,'',0,1);
+
+        $pdf->SetFont('Arial','',10);
+        $pdf->cell(237,5,'dicetak tanggal '.date('d ').$bulansInd[date('m')-1].date(' Y'),0,1,'R');
+
+        $pdf->Output();
+    }
+
+    public function toRupiah($value){
+        $value = strrev($value);
+        $value = str_split($value, 3);
+        $temp = '';
+        for ($i=count($value); $i>0 ; $i--) {
+            if($i==1){
+                $temp = $temp.strrev($value[$i-1]);
+            }else{
+                $temp = $temp.strrev($value[$i-1]).','; 
+            }
+        }
+        return $temp;
+    }
+
+
 }

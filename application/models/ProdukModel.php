@@ -4,48 +4,43 @@ date_default_timezone_set("Asia/Jakarta");
 class ProdukModel extends CI_Model
 {
     private $table = 'produk';
-    public $id;
-    public $nama;
-    public $id_kategori_produk;
-    public $harga;
-    public $satuan;
-    public $jmlh_min;
-    public $jmlh;
-    public $link_gambar;
+    public $id_prd;
+    public $nama_prd;
+    public $deskripsi_prd;
+    public $harga_prd;
+    public $stok_prd;
+    public $ukuran_prd;
+    public $satuan_prd;
     public $isDelete;
-    public $updated_by;
-    public $updated_at;
-    public $created_by;
-    public $created_at;
     public $rule = [
         [
-            'field' => 'nama',
-            'label' => 'nama',
+            'field' => 'nama_prd',
+            'label' => 'nama_prd',
             'rules' => 'required'
         ],
         [
-            'field' => 'id_kategori_produk',
-            'label' => 'id_kategori_produk',
+            'field' => 'deskripsi_prd',
+            'label' => 'deskripsi_prd',
             'rules' => 'required'
         ],
         [
-            'field' => 'harga',
-            'label' => 'harga',
+            'field' => 'harga_prd',
+            'label' => 'harga_prd',
             'rules' => 'required'
         ],
         [
-            'field' => 'satuan',
-            'label' => 'satuan',
+            'field' => 'stok_prd',
+            'label' => 'stok_prd',
             'rules' => 'required'
         ],
         [
-            'field' => 'jmlh_min',
-            'label' => 'jmlh_min',
+            'field' => 'ukuran_prd',
+            'label' => 'ukuran_prd',
             'rules' => 'required'
         ],
         [
-            'field' => 'jmlh',
-            'label' => 'jmlh',
+            'field' => 'satuan_prd',
+            'label' => 'satuan_prd',
             'rules' => 'required'
         ]
     ];
@@ -54,51 +49,34 @@ class ProdukModel extends CI_Model
     }
 
     public function get() { 
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,link_gambar')->from($this->table)->where(array('isDelete'=>0))->get()->result();
+        return $this->db->select('id_prd,nama_prd,deskripsi_prd,harga_prd,satuan_prd,stok_prd,ukuran_prd')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,link_gambar')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
+        return $this->db->select('id_prd,nama_prd,harga_prd,satuan_prd,deskripsi_prd,stok_prd,ukuran_prd')->from($this->table)->where(array('id_prd'=>$request,'isDelete'=>0))->get()->row();
     }
 
     public function searchForeign($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,link_gambar')->from($this->table)->where(array('id'=>$request,))->get()->row();
+        return $this->db->select('id_prd,nama_prd,deskripsi_prd,harga_prd,satuan_prd,deskripsi_prd,stok_prd,ukuran_prd')->from($this->table)->where(array('id_prd'=>$request,))->get()->row();
     }
 
     public function searchByString($request){
-        return $this->db->select('id,nama,id_kategori_produk,harga,satuan,jmlh_min,jmlh,link_gambar')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+        return $this->db->select('id_prd,nama_prd,deskripsi_prd,harga_prd,satuan_prd,deskripsi_prd,stok_prd,ukuran_prd')->from($this->table)->where(array('isDelete'=>0))->like('nama_prd',$request)->or_like('nama_prd',$request,'before')->or_like('nama_prd',$request,'after')->get()->result();
     }
 
-    public function getImageUrl($id){
-        return $this->db->select('link_gambar')->from($this->table)->where(array('id'=>$id))->get()->row()->link_gambar;
+
+    public function getJumlahProduk($id_prd){
+        return $this->db->select('stok_prd')->from($this->table)->where(array('id_prd'=>$id_prd))->get()->row()->stok_prd;
     }
 
-    public function getJumlahProduk($id){
-        return $this->db->select('jmlh')->from($this->table)->where(array('id'=>$id))->get()->row()->jmlh;
-    }
-
-    public function searchProdukHabis(){
-        return $query = $this->db->query('SELECT nama FROM produk WHERE jmlh_min >= jmlh')->result();
-    }
-
-    public function searchJumlahProdukHabis(){
-        return $query = $this->db->query('SELECT count(nama) as jumlah FROM produk WHERE jmlh_min >= jmlh')->row()->jumlah;
-    }
-
-    public function searchNamaProdukHabis(){
-        return $query = $this->db->query('SELECT id, nama FROM produk WHERE jmlh_min >= jmlh')->result();
-    }
 
     public function store($request) {
-        $this->nama = $request->nama;
-        $this->id_kategori_produk = $request->id_kategori_produk;
-        $this->harga = $request->harga;
-        $this->satuan = $request->satuan;
-        $this->jmlh_min = $request->jmlh_min;
-        $this->jmlh = $request->jmlh;
-        $this->link_gambar = $request->link_gambar;
-        $this->created_by = $request->created_by;
-        $this->created_at = date('Y-m-d H:i:s');
+        $this->nama_prd = $request->nama_prd;
+        $this->deskripsi_prd = $request->deskripsi_prd;
+        $this->harga_prd = $request->harga_prd;
+        $this->satuan_prd = $request->satuan_prd;
+        $this->stok_prd = $request->stok_prd;
+        $this->ukuran_prd = $request->ukuran_prd;
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
             return [
@@ -113,28 +91,23 @@ class ProdukModel extends CI_Model
     }
     
     public function update($request) {
-        $this->id = $request->id;
-        $this->nama = $request->nama;
-        $this->id_kategori_produk = $request->id_kategori_produk;
-        $this->harga = $request->harga;
-        $this->satuan = $request->satuan;
-        $this->jmlh_min = $request->jmlh_min;
-        $this->jmlh = $request->jmlh;
-        $this->link_gambar = $request->link_gambar;
-        $this->updated_by = $request->updated_by;
-        $this->updated_at = date('Y-m-d H:i:s');
+        $this->id_prd = $request->id_prd;
+        $this->nama_prd = $request->nama_prd;
+        $this->harga_prd = $request->harga_prd;
+        $this->satuan_prd = $request->satuan_prd;
+        $this->deskripsi_prd = $request->deskripsi_prd;
+        $this->stok_prd = $request->stok_prd;
+        $this->ukuran_prd = $request->ukuran_prd;
         $data = array( 
-            'nama'      => $this->nama, 
-            'id_kategori_produk'      => $this->id_kategori_produk, 
-            'harga'      => $this->harga, 
-            'satuan'      => $this->satuan, 
-            'jmlh_min'      => $this->jmlh_min, 
-            'jmlh'      => $this->jmlh,
-            'link_gambar'      => $this->link_gambar,
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'nama_prd'      => $this->nama_prd, 
+            'deskripsi_prd'      => $this->deskripsi_prd, 
+            'harga_prd'      => $this->harga_prd, 
+            'satuan_prd'      => $this->satuan_prd, 
+            'deskripsi_prd'      => $this->deskripsi_prd, 
+            'stok_prd'      => $this->stok_prd,
+            'ukuran_prd'      => $this->ukuran_prd,
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_prd' => $this->id_prd))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -146,17 +119,13 @@ class ProdukModel extends CI_Model
         ];
     }
 
-    public function updateStock($request){
-        $this->id = $request->id;
-        $this->jmlh = $request->jmlh;
-        $this->updated_by = $request->updated_by;
-        $this->updated_at = date('Y-m-d H:i:s');
-        $data = array( 
-            'jmlh'      => $this->jmlh, 
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+    public function updateStock($request) {
+        $this->id_prd = $request->id_prd;
+        $this->stok_prd = $request->stok_prd;
+        $data = array(  
+            'stok_prd'      => $this->stok_prd,
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_prd' => $this->id_prd))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -169,15 +138,11 @@ class ProdukModel extends CI_Model
     }
 
     public function delete($request){
-        $this->id = $request->id;
-        $this->updated_by = $request->updated_by;
-        $this->updated_at = date('Y-m-d H:i:s');
+        $this->id_prd = $request->id_prd;
         $data = array( 
-            'isDelete'      => 1, 
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'isDelete'      => 1,
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_prd' => $this->id_prd))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false

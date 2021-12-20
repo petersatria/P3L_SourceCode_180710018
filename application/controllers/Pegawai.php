@@ -11,7 +11,7 @@ class Pegawai extends REST_Controller
 		header('Access-Control-Allow-Methods: GET, OPTIO NS, POST, DELETE');
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
-		$this->load->model('RolePegawaiModel');
+		$this->load->model('RoleModel');
 		$this->load->model('PegawaiModel');
 		$this->load->library('form_validation');
 	}
@@ -20,21 +20,61 @@ class Pegawai extends REST_Controller
 	{
         if($id==null){
             $response = $this->PegawaiModel->get();
-            foreach($response as $r){
-                $r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
-            }
+			foreach($response as $r){
+				$r->id_role_pegawai = $this->RoleModel->search($r->id_role_pegawai)->nama_role;
+			}
 			return $this->returnData($response, false);
         }else{
             $response = $this->PegawaiModel->search($id);
-			$response->id_role_pegawai = $this->RolePegawaiModel->searchForeign($response->id_role_pegawai)->keterangan;
 			return $this->returnData($response,false);
 		}
 	}
 
+	public function dokter_get($jadwal = null){
+		if($jadwal == null){
+			return $this->returnData('Parameter jadwal Tidak Ditemukan', true);
+		}
+		$response = $this->PegawaiModel->getDokter($jadwal);
+		if($response !=null){
+			$response = [
+				'msg' => $response,
+				'error' => false
+			];
+		}else{
+			$response = [
+				'msg'=>'jadwal tidak ditemukan',
+				'error'=>true
+			];
+		}
+		return $this->returnData($response['msg'],$response['error']);
+	}
+
+	public function beautician_post(){
+		$data = new data();
+        $data->id_jadwal = $this->post('id_jadwal');
+        $data->jk_pegawai = $this->post('jk_pegawai');
+		
+
+		$response = $this->PegawaiModel->getBeautician($data);
+		if($response !=null){
+			$response = [
+				'msg' => $response,
+				'error' => false
+			];
+		}else{
+			$response = [
+				'msg'=>'jadwal tidak ditemukan',
+				'error'=>true
+			];
+		}
+		return $this->returnData($response['msg'],$response['error']);
+	}
+
+
 	public function byString_get($nama = null){
 		$response = $this->PegawaiModel->searchByString($nama);
 		foreach($response as $r){
-			$r->id_role_pegawai = $this->RolePegawaiModel->searchForeign($r->id_role_pegawai)->keterangan;
+			$r->id_role_pegawai = $this->RoleModel->search($r->id_role_pegawai)->nama_role;
 		}
 		return $this->returnData($response, false);
 	}
@@ -62,46 +102,37 @@ class Pegawai extends REST_Controller
 	{
 		$validation = $this->form_validation;
 		$rule = $this->PegawaiModel->rules();
-		if($id != null){
-			array_push(
+        if($id == null){
+            array_push(
 				$rule,
-				[
-					'field' => 'updated_by',
-					'label' => 'updated_by',
-					'rules' => 'required'
-				]
-			);
-		}else{
-			array_push(
-				$rule,
-				[
-					'field' => 'created_by',
-					'label' => 'craeted_by',
-					'rules' => 'required'
-				],
 				[
 					'field' => 'username',
 					'label' => 'username',
 					'rules' => 'is_unique[pegawai.username]'
 				]
 			);
-		}
+        }
 		$validation->set_rules($rule);
 		if (!$validation->run()) {
 			return $this->returnData($this->form_validation->error_array(), true);
         }
         $data = new data();
-        $data->id = $id;
-        $data->nama = $this->post('nama');
+        $data->id_pegawai = $id;
         $data->id_role_pegawai = $this->post('id_role_pegawai');
-        $data->tanggal_lahir = date('Y-m-d',strtotime($this->post('tanggal_lahir')));
-		$data->alamat = $this->post('alamat');
-		$data->no_telp = $this->post('no_telp');
+        $data->nama_pegawai = $this->post('nama_pegawai');
+        $data->alamat_pegawai = $this->post('alamat_pegawai');
+		$data->no_telp_pegawai = $this->post('no_telp_pegawai');
+		$data->jk_pegawai = $this->post('jk_pegawai');
 		$data->username = $this->post('username');
-		$data->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
 		if($id != null){
-			if($this->PegawaiModel->getIdPegawai($this->post('username')) == null || $this->PegawaiModel->getIdPegawai($this->post('username')) == $data->id){
-				$data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
+
+			$data->password = $this->post('password');
+			if( $data->password != ''){
+				$data->password = password_hash($data->password,PASSWORD_BCRYPT);
+				$response = $this->PegawaiModel->updatePass($data);
+			}
+
+			if($this->PegawaiModel->getIdPegawai($this->post('username')) == null || $this->PegawaiModel->getIdPegawai($this->post('username')) == $data->id_pegawai){
 				$response = $this->PegawaiModel->update($data);
 			}else{
 				$response = [
@@ -110,55 +141,20 @@ class Pegawai extends REST_Controller
 				];
 			}
 		}else{
-			$data->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
+			$data->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
 			$response = $this->PegawaiModel->store($data);
 		}
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
-	public function editPassword_post($id=null){
-		if($id == null){
-			return $this->returnData('Parameter Id Tidak Ditemukan', true);
-		}
-		$validation = $this->form_validation;
-		$rule = [
-			[
-				'field' => 'password',
-				'label' => 'password',
-				'rules' => 'required'
-			]
-		];
-		$validation->set_rules($rule);
-		if(!$validation->run()) {
-			return $this->returnData($this->form_validation->error_array(), true);
-		}
-		$pegawai = new data();
-		$pegawai->id = $id;
-		$pegawai->password = password_hash($this->post('password'),PASSWORD_BCRYPT);
-		$response = $this->PegawaiModel->editPassword($pegawai);
-		return $this->returnData($response['msg'],$response['error']);
-	}
 
 	public function delete_post($id=null){
 		if($id == null){
 			return $this->returnData('Parameter Id Tidak Ditemukan', true);
 		}
-		$validation = $this->form_validation;
-		$rule = [
-			[
-				'field' => 'updated_by',
-				'label' => 'updated_by',
-				'rules' => 'required'
-			]
-		];
-		$validation->set_rules($rule);
-		if(!$validation->run()) {
-			return $this->returnData($this->form_validation->error_array(), true);
-		}
-		$ukuran = new data();
-		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-		$ukuran->id = $id;
-		$response = $this->PegawaiModel->delete($ukuran);
+		$data = new data();
+		$data->id_pegawai = $id;
+		$response = $this->PegawaiModel->delete($data);
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
@@ -174,8 +170,8 @@ class Pegawai extends REST_Controller
 					'error'=>true
 				];
 			}else{
-				$response->id_role_pegawai = $this->RolePegawaiModel->searchForeign($response->id_role_pegawai)->keterangan;
-				$data = array('username'=>$response->username,'id_role_pegawai'=>$response->id_role_pegawai);
+				$response->id_role_pegawai = $this->RoleModel->search($response->id_role_pegawai)->nama_role;
+				$data = array('username'=>$response->username,'id_role_pegawai'=>$response->id_role_pegawai,'id_pegawai'=>$response->id_pegawai);
 				$response = [
 					'msg'=> $data,
 					'error'=>false
@@ -200,14 +196,14 @@ class Pegawai extends REST_Controller
 
 class data
 {
-	public $id;
+	public $id_pegawai;
     public $id_role_pegawai;
-    public $nama;
-    public $tanggal_lahir;
-    public $alamat;
-    public $no_telp;
+    public $nama_pegawai;
+    public $alamat_pegawai;
+    public $no_telp_pegawai;
+    public $jk_pegawai;
     public $username;
     public $password;
-    public $updated_by;
-    public $created_by;
+    public $isAvailable;
+	public $id_jadwal;
 }

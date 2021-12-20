@@ -12,194 +12,87 @@ class Produk extends REST_Controller
 		header('Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding');
 		parent::__construct();
 		$this->load->model('ProdukModel');
-		$this->load->model('DetilTransaksiPenjualanModel');
-		$this->load->model('KategoriProdukModel');
-		$this->load->model('PegawaiModel');
-		$this->load->library('upload');
+		$this->load->model('DetilTransaksiProdukModel');
 		$this->load->library('form_validation');
 	}
 
-	public function index_get($id = null)
+	public function index_get($id_prd = null)
 	{
-        if($id==null){
+        if($id_prd==null){
             $response = $this->ProdukModel->get();
-            foreach($response as $r){
-                $r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
-            }
 			return $this->returnData($response, false);
         }else{
-            $response = $this->ProdukModel->search($id);
-			$response->id_kategori_produk = $this->KategoriProdukModel->searchForeign($response->id_kategori_produk)->keterangan;
+            $response = $this->ProdukModel->search($id_prd);
 			return $this->returnData($response,false);
 		}
 	}
 
-	public function byString_get($nama = null){
-		$response = $this->ProdukModel->searchByString($nama);
-		foreach($response as $r){
-			$r->id_kategori_produk = $this->KategoriProdukModel->searchForeign($r->id_kategori_produk)->keterangan;
+	public function mobile_get($id_prd = null)
+	{
+        if($id_prd==null){
+            $response = $this->ProdukModel->get();
+			return $this->response($response);
+        }else{
+            $response = $this->ProdukModel->search($id_prd);
+			return $this->response($response);
 		}
+	}
+
+	public function mobileBest_get()
+	{
+		$bulan = $_GET['bulan'];
+        $tahun = $_GET['tahun'];
+        $date=$bulan.'-'.$tahun;
+		$response = $this->DetilTransaksiProdukModel->getTotalLaporanMobile($date);
+		return $this->response($response);
+	}
+
+	public function byString_get($nama_prd = null){
+		$response = $this->ProdukModel->searchByString($nama_prd);
 		return $this->returnData($response, false);
 	}
 
-	public function produkHabis_get($nama = null){
-		$response = $this->ProdukModel->searchJumlahProdukHabis($nama);
-		return $this->returnData($response, false);
-	}
-
-	public function produkHabisNama_get($nama = null){
-		$response = $this->ProdukModel->searchNamaProdukHabis($nama);
-		return $this->returnData($response, false);
-	}
-
-	public function stock_get($id = null){
-		if($id == null){
-			return $this->returnData('Parameter Id Tidak Ditemukan', true);
+	public function stock_get($id_prd = null){
+		if($id_prd == null){
+			return $this->returnData('Parameter id_prd Tidak Ditemukan', true);
 		}
-		$jumlah = (int)$this->ProdukModel->getJumlahProduk($id) - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($id);
+		$jumlah = (int)$this->ProdukModel->getJumlahProduk($id_prd) - (int)$this->DetilTransaksiPenjualanModel->getJumlahDibeli($id_prd);
 		return $this->returnData($jumlah, false);
 		
 	}
 
-	public function stock_post($id = null){
-		if($id == null){
-			return $this->returnData('Parameter Id Tidak Ditemukan', true);
-		}
-		$validation = $this->form_validation;
-		$rule = [
-			[
-				'field' => 'jmlh',
-				'label' => 'jmlh',
-				'rules' => 'required'
-			],
-			[
-				'field' => 'updated_by',
-				'label' => 'updated_by',
-				'rules' => 'required'
-			]
-		];
-		$validation->set_rules($rule);
-		if (!$validation->run()) {
-			return $this->returnData($this->form_validation->error_array(), true);
-		}
-		$data = new data();
-		$data->id = $id;
-		$data->jmlh = (int)$this->post('jmlh') + (int)$this->ProdukModel->getJumlahProduk($id);
-		$data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-		$response = $this->ProdukModel->updateStock($data);
-		return $this->returnData($response['msg'], $response['error']);
-	}
-
-	public function index_post($id = null)
+	public function index_post($id_prd = null)
 	{
 		$validation = $this->form_validation;
 		$rule = $this->ProdukModel->rules();
-		if($id != null){
-			array_push(
-				$rule,
-				[
-					'field' => 'updated_by',
-					'label' => 'updated_by',
-					'rules' => 'required'
-				]
-			);
-		}else{
-			array_push(
-				$rule,
-				[
-					'field' => 'created_by',
-					'label' => 'craeted_by',
-					'rules' => 'required'
-				]
-			);
-		}
 		$validation->set_rules($rule);
 		if (!$validation->run()) {
 			return $this->returnData($this->form_validation->error_array(), true);
         }
         $data = new data();
-        $data->id = $id;
-        $data->nama = $this->post('nama');
-        $data->id_kategori_produk = $this->post('id_kategori_produk');
-        $data->harga = $this->post('harga');
-		$data->satuan = $this->post('satuan');
-		$data->jmlh_min = $this->post('jmlh_min');
-		$data->jmlh = $this->post('jmlh');
-		$response = $this->uploadGambar($id);
-		if($response['error'])
-			return $this->returnData($response['msg'], $response['error']);
-		else
-			$data->link_gambar = $response['msg'];
-		if($id != null){
-            $data->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
+        $data->id_prd = $id_prd;
+        $data->nama_prd = $this->post('nama_prd');
+        $data->deskripsi_prd = $this->post('deskripsi_prd');
+        $data->harga_prd = $this->post('harga_prd');
+		$data->satuan_prd = $this->post('satuan_prd');
+		$data->stok_prd = $this->post('stok_prd');
+		$data->ukuran_prd = $this->post('ukuran_prd');
+		if($id_prd != null){
 			$response = $this->ProdukModel->update($data);
 		}else{
-			$data->created_by = $this->PegawaiModel->getIdPegawai($this->post('created_by'));
 			$response = $this->ProdukModel->store($data);
 		}
 		return $this->returnData($response['msg'], $response['error']);
 	}
 
-	public function delete_post($id=null){
-		if($id == null){
-			return $this->returnData('Parameter Id Tidak Ditemukan', true);
-		}
-		$validation = $this->form_validation;
-		$rule = [
-			[
-				'field' => 'updated_by',
-				'label' => 'updated_by',
-				'rules' => 'required'
-			]
-		];
-		$validation->set_rules($rule);
-		if(!$validation->run()) {
-			return $this->returnData($this->form_validation->error_array(), true);
+	public function delete_post($id_prd=null){
+		if($id_prd == null){
+			return $this->returnData('Parameter id_prd Tidak Ditemukan', true);
 		}
 		$ukuran = new data();
-		$ukuran->updated_by = $this->PegawaiModel->getIdPegawai($this->post('updated_by'));
-		$ukuran->id = $id;
+		$ukuran->id_prd = $id_prd;
 		$response = $this->ProdukModel->delete($ukuran);
 		return $this->returnData($response['msg'], $response['error']);
-	}
-
-	public function uploadGambar($id)
-	{
-			$config['upload_path']          = './resource/';
-			$config['allowed_types']        = 'gif|jpg|png';
-			$config['encrypt_name']			= true;
-
-			$this->upload->initialize($config);
-
-			if ( ! $this->upload->do_upload('link_gambar'))
-			{
-				if($this->upload->display_errors("","") == "You did not select a file to upload."){
-					if($id!=null){
-						return [
-							'msg'=> $this->ProdukModel->getImageUrl($id),
-							'error'=>false
-						];
-					}else{
-						return [
-							'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource/default.png',
-							'error'=>false
-						];
-					}
-				}else{
-					return [
-						'msg'=> $this->upload->display_errors("",""),
-						'error'=>true
-					];
-				}
-					
-			}
-			else
-			{
-				return [
-					'msg'=> 'http://localhost:8080/rest_api-kouvee-pet-shop/resource/'.$this->upload->data("file_name"),
-					'error'=>false
-				];
-			}
 	}
 	
 	public function returnData($msg, $error)
@@ -212,14 +105,11 @@ class Produk extends REST_Controller
 
 class data
 {
-	public $id;
-    public $nama;
-    public $id_kateogri_produk;
-    public $harga;
-    public $satuan;
-    public $jmlh_min;
-	public $jmlh;
-	public $link_gambar;
-	public $created_by;
-	public $updaetd_by;
+	public $id_prd;
+    public $nama_prd;
+    public $deskripsi_prd;
+    public $harga_prd;
+    public $satuan_prd;
+	public $stok_prd;
+	public $ukuran_prd;
 }

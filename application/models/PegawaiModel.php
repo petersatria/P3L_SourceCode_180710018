@@ -4,53 +4,44 @@ date_default_timezone_set("Asia/Jakarta");
 class PegawaiModel extends CI_Model
 {
     private $table = 'pegawai';
-    public $id;
+    public $id_pegawai;
     public $id_role_pegawai;
-    public $nama;
-    public $tanggal_lahir;
-    public $alamat;
-    public $no_telp;
+    public $nama_pegawai;
+    public $alamat_pegawai;
+    public $no_telp_pegawai;
+    public $jk_pegawai;
     public $username;
     public $password;
-    public $isDelete;
-    public $updated_by;
-    public $updated_at;
-    public $created_by;
-    public $created_at;
+    public $isAvailable;
     public $rule = [
-        [
-            'field' => 'nama',
-            'label' => 'nama',
-            'rules' => 'required'
-        ],
         [
             'field' => 'id_role_pegawai',
             'label' => 'id_role_pegawai',
             'rules' => 'required'
         ],
         [
-            'field' => 'tanggal_lahir',
-            'label' => 'tanggal_lahir',
+            'field' => 'nama_pegawai',
+            'label' => 'nama_pegawai',
             'rules' => 'required'
         ],
         [
-            'field' => 'alamat',
-            'label' => 'alamat',
+            'field' => 'alamat_pegawai',
+            'label' => 'alamat_pegawai',
             'rules' => 'required'
         ],
         [
-            'field' => 'no_telp',
-            'label' => 'no_telp',
+            'field' => 'no_telp_pegawai',
+            'label' => 'no_telp_pegawai',
+            'rules' => 'required'
+        ],
+        [
+            'field' => 'jk_pegawai',
+            'label' => 'jk_pegawai',
             'rules' => 'required'
         ],
         [
             'field' => 'username',
             'label' => 'username',
-            'rules' => 'required'
-        ],
-        [
-            'field' => 'password',
-            'label' => 'password',
             'rules' => 'required'
         ]
     ];
@@ -59,31 +50,55 @@ class PegawaiModel extends CI_Model
     }
 
     public function get() { 
-        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp')->from($this->table)->where(array('isDelete'=>0))->get()->result();
+        return $this->db->select('id_pegawai,id_role_pegawai,nama_pegawai,alamat_pegawai, no_telp_pegawai ,jk_pegawai,username,password,isAvailable')->from($this->table)->where(array('isDelete'=>0))->get()->result();
     }
 
     public function search($request){
-        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp,password')->from($this->table)->where(array('id'=>$request,'isDelete'=>0))->get()->row();
+        return $this->db->select('id_pegawai,id_role_pegawai,nama_pegawai,alamat_pegawai, no_telp_pegawai ,jk_pegawai,username,password,isAvailable')->from($this->table)->where(array('id_pegawai'=>$request,'isDelete'=>0))->get()->row();
     }
 
     public function searchForeign($request){
-        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp,password')->from($this->table)->where(array('id'=>$request))->get()->row();
-    }
-    
-    public function searchByString($request){
-        return $this->db->select('id,nama,id_role_pegawai,tanggal_lahir,alamat,username,no_telp')->from($this->table)->where(array('isDelete'=>0))->like('nama',$request)->or_like('nama',$request,'before')->or_like('nama',$request,'after')->get()->result();
+        return $this->db->select('id_pegawai,id_role_pegawai,nama_pegawai,alamat_pegawai, no_telp_pegawai ,jk_pegawai,username,password,isAvailable')->from($this->table)->where(array('id_pegawai'=>$request,))->get()->row();
     }
 
+    public function searchByString($request){
+        return $this->db->select('id_pegawai,id_role_pegawai,nama_pegawai, no_telp_pegawai ,jk_pegawai,username,password,isAvailable')->from($this->table)->where(array('isDelete'=>0))->like('nama_pegawai',$request)->or_like('nama_pegawai',$request,'before')->or_like('nama_pegawai',$request,'after')->get()->result();
+    }
+
+    public function login($username){
+        $request = $this->db->select('id_pegawai,username,password,id_role_pegawai')->from('pegawai')->where(array('username' => $username))->get()->row();
+        if($request != null){
+            return $request;
+        }
+        return null;
+    }
+
+    public function getIdPegawai($username){
+        $request = $this->db->select('id_pegawai')->from('pegawai')->where(array('username' => $username))->get()->row();
+        if($request != null){
+            return $request->id_pegawai;
+        }
+        return null;
+    }
+
+    public function getDokter($request){
+        return $this->db->select('p.id_pegawai as id_pegawai, p.nama_pegawai as nama_pegawai')->from('pegawai p')->join('detil_jadwal dj','dj.id_pegawai = p.id_pegawai')->where(array('dj.id_jadwal' => $request,'p.id_role_pegawai'=>'3'))->get()->result();
+    }
+
+    public function getBeautician($request){
+        return $this->db->select('p.id_pegawai as id_pegawai, p.nama_pegawai as nama_pegawai')->from('pegawai p')->join('detil_jadwal dj','dj.id_pegawai = p.id_pegawai')->where(array('p.jk_pegawai' => $request->jk_pegawai,'p.id_role_pegawai'=>'4','isAvailable'=>'1'))->get()->result();
+    }
+
+
     public function store($request) {
-        $this->nama = $request->nama;
         $this->id_role_pegawai = $request->id_role_pegawai;
-        $this->tanggal_lahir = $request->tanggal_lahir;
-        $this->alamat = $request->alamat;
+        $this->nama_pegawai = $request->nama_pegawai;
+        $this->alamat_pegawai = $request->alamat_pegawai;
+        $this->no_telp_pegawai = $request->no_telp_pegawai;
+        $this->jk_pegawai = $request->jk_pegawai;
         $this->username = $request->username;
         $this->password = $request->password;
-        $this->no_telp = $request->no_telp;
-        $this->created_by = $request->created_by;
-        $this->created_at = date('Y-m-d H:i:s');
+        $this->isAvailable = 1;
         $this->isDelete = 0;
         if($this->db->insert($this->table, $this)){
             return [
@@ -96,30 +111,42 @@ class PegawaiModel extends CI_Model
             'error'=>true
         ];
     }
+
+    public function updatePass($request) {
+        $this->id_pegawai = $request->id_pegawai;
+        $this->password = $request->password;
+        $data = array( 
+            'password'      => $this->password, 
+        );
+        if($this->db->where(array('id_pegawai' => $this->id_pegawai))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
+        }
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
+    }
     
     public function update($request) {
-        $this->id = $request->id;
-        $this->nama = $request->nama;
+        $this->id_pegawai = $request->id_pegawai;
         $this->id_role_pegawai = $request->id_role_pegawai;
-        $this->tanggal_lahir = $request->tanggal_lahir;
-        $this->alamat = $request->alamat;
+        $this->nama_pegawai = $request->nama_pegawai;
+        $this->alamat_pegawai = $request->alamat_pegawai;
+        $this->no_telp_pegawai = $request->no_telp_pegawai;
+        $this->jk_pegawai = $request->jk_pegawai;
         $this->username = $request->username;
-        $this->password = $request->password;
-        $this->no_telp = $request->no_telp;
-        $this->updated_by = $request->updated_by;
-        $this->updated_at = date('Y-m-d H:i:s');
         $data = array( 
-            'nama'      => $this->nama, 
             'id_role_pegawai'      => $this->id_role_pegawai, 
-            'tanggal_lahir'      => $this->tanggal_lahir, 
-            'alamat'      => $this->alamat, 
+            'nama_pegawai'      => $this->nama_pegawai, 
+            'alamat_pegawai'      => $this->alamat_pegawai,
+            'no_telp_pegawai'      => $this->no_telp_pegawai, 
+            'jk_pegawai'      => $this->jk_pegawai,
             'username'      => $this->username,
-            'password'      => $this->password, 
-            'no_telp'      => $this->no_telp, 
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_pegawai' => $this->id_pegawai))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -132,15 +159,11 @@ class PegawaiModel extends CI_Model
     }
 
     public function delete($request){
-        $this->id = $request->id;
-        $this->updated_by = $this->getIdPegawai($request->updated_by);
-        $this->updated_at = date('Y-m-d H:i:s');
+        $this->id_pegawai = $request->id_pegawai;
         $data = array( 
-            'isDelete'      => 1, 
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'isDelete'      => 1,
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_pegawai' => $this->id_pegawai))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -152,17 +175,12 @@ class PegawaiModel extends CI_Model
         ];
     }
 
-    public function editPassword($request){
-        $this->id = $request->id;
-        $this->password = $request->password;
-        $this->updated_by = $request->id;
-        $this->updated_at = date('Y-m-d H:i:s');
+    public function setAvailable($request){
+        $this->id_pegawai = $request;
         $data = array( 
-            'password'      => $this->password, 
-            'updated_by' => $this->updated_by, 
-            'updated_at'       => $this->updated_at
+            'isAvailable'      => 1,
         );
-        if($this->db->where(array('id' => $this->id))->update($this->table, $data)){
+        if($this->db->where(array('id_pegawai' => $this->id_pegawai))->update($this->table, $data)){
             return [
                 'msg'=>'Berhasil',
                 'error'=>false
@@ -174,27 +192,20 @@ class PegawaiModel extends CI_Model
         ];
     }
 
-    public function getIdPegawai($username){
-        $request = $this->db->select('id')->from('pegawai')->where(array('username' => $username))->get()->row();
-        if($request != null){
-            return $request->id;
+    public function setUnavailable($request){
+        $this->id_pegawai = $request;
+        $data = array( 
+            'isAvailable'      => 0,
+        );
+        if($this->db->where(array('id_pegawai' => $this->id_pegawai))->update($this->table, $data)){
+            return [
+                'msg'=>'Berhasil',
+                'error'=>false
+            ];
         }
-        return null;
-    }
-
-    public function login($username){
-        $request = $this->db->select('username,password,id_role_pegawai')->from('pegawai')->where(array('username' => $username))->get()->row();
-        if($request != null){
-            return $request;
-        }
-        return null;
-    }
-
-    public function getByUsername($request){
-        $request = $this->db->select('id')->from('pegawai')->where(array('username' => $request))->limit(1)->get()->row();
-        if($request != null){
-            return $request;
-        }
-        return null;
+        return [
+            'msg'=>'Gagal',
+            'error'=>true
+        ];
     }
 }
